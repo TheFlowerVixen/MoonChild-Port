@@ -1,8 +1,10 @@
 {
     "env": {
-        "defaultIncludePath": [
-            "${workspaceFolder}/src/**",
-            "${workspaceFolder}/src/**"
+        "defaultIncludePaths": [
+            "${workspaceFolder}/platform/**",
+            "${workspaceFolder}/source/**",
+            "${workspaceFolder}/source/framewrk/**",
+            "${workspaceFolder}/source/moonchild/**"
         ],
         "defaultDefines": [],
         "rvlIncludePaths": [
@@ -23,13 +25,35 @@
             "HW_DOL",
             "PLATFORM_WII"
         ],
-        "ppcCompilerPath": "C:/devkitPro/devkitPPC/bin/powerpc-eabi-g++"
+        "sdlIncludePaths": [
+            "C:/msys64/ucrt64/include",
+            "C:/msys64/ucrt64/include/SDL2"
+        ],
+        "sdlDefines": [
+        ],
+        "ppcCompilerPath": "C:/devkitPro/devkitPPC/bin/powerpc-eabi-g++",
+        "winCompilerPath": "C:/msys64/ucrt64/bin/gcc"
     },
     "configurations": [
         {
+            "name": "SDL",
+            "includePath": [
+                "${env:defaultIncludePaths}",
+                "${env:sdlIncludePaths}"
+            ],
+            "defines": [
+                "${env:defaultDefines}",
+                "${env:sdlDefines}"
+            ],
+            "compilerPath": "${env:winCompilerPath}",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-gcc-x64"
+        },
+        {
             "name": "Wii",
             "includePath": [
-                "${env:defaultIncludePath}",
+                "${env:defaultIncludePaths}",
                 "${env:rvlIncludePaths}"
             ],
             "defines": [

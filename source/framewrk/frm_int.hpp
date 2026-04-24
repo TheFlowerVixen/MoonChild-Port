@@ -12,6 +12,11 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "platform_audio.h"
+#include "platform_movie_player.h"
+#include "platform_system.h"
+#include "platform_video.h"
+
 //#include <types.h>
 #include "mydefs.hpp"
 //#include "basedefs.hpp"

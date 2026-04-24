@@ -303,7 +303,7 @@ UINT16 frmwrk_fastblit(Cblitbuf *src, Cblitbuf &dest, int x1, int y1, int x2, in
 
 				t1 = Src;
 				// welke van de 4 middle copies?
-				switch(((long)Src)&3)
+				switch(((intptr_t)Src)&3)
 				{
 				case 0:	// gewone copy
 #if 1

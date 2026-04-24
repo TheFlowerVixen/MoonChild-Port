@@ -1,120 +1,136 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ogcsys.h>
-#include <gccore.h>
-#include <wiiuse/wpad.h>
 
 #define _IN_MAIN
 #include "framewrk/frm_int.hpp"
-
 #include "moonchild/mc.hpp"
 #include "moonchild/globals.hpp"
 #include "moonchild/prefs.hpp"
-#include "wii_audio.h"
-#include "wii_game.h"
-#include "wii_movie_player.h"
-#include "wii_util.h"
 
-static void* xfb = NULL;
-static GXRModeObj* rmode = NULL;
+int g_MouseFlg = 0;
+int g_MouseActualFlg = 0;
+int g_MouseXDown = 0;
+int g_MouseYDown = 0;
+int g_MouseXCurrent = 0;
+int g_MouseYCurrent = 0;
 
-extern s32 __STM_Init();
-extern void __exception_closeall();
-extern s32 __IOS_ShutdownSubsystems();
-
-MoviePlayer *moviePlayer = nullptr;
-
-#define GAME_WIDTH 640
-#define GAME_HEIGHT 480
-
-uint8_t *pixelBuffer = nullptr;
-int pixelBufferPitch = 0;
-
-bool poll_pad()
+bool initMoonChild(unsigned char *pixelBuffer, int width, int height)
 {
-	WPAD_ScanPads();
-
-	u32 buttonsDown = WPAD_ButtonsDown(0);
-	u32 buttonsUp = WPAD_ButtonsUp(0);
-
-	if (buttonsDown & WPAD_BUTTON_HOME)
-		return true;
-
-	if (buttonsDown & WPAD_BUTTON_RIGHT)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->upkey);
-    if (buttonsUp & WPAD_BUTTON_RIGHT)
-        framework_EventHandle(FW_KEYUP, (int)prefs->upkey);
-    
-    if (buttonsDown & WPAD_BUTTON_LEFT)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->downkey);
-    if (buttonsUp & WPAD_BUTTON_LEFT)
-        framework_EventHandle(FW_KEYUP, (int)prefs->downkey);
-    
-    if (buttonsDown & WPAD_BUTTON_DOWN)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->leftkey);
-    if (buttonsUp & WPAD_BUTTON_DOWN)
-        framework_EventHandle(FW_KEYUP, (int)prefs->leftkey);
-    
-    if (buttonsDown & WPAD_BUTTON_UP)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->rightkey);
-    if (buttonsUp & WPAD_BUTTON_UP)
-        framework_EventHandle(FW_KEYUP, (int)prefs->rightkey);
-
-    if (buttonsDown & WPAD_BUTTON_2)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->shootkey);
-    if (buttonsUp & WPAD_BUTTON_2)
-        framework_EventHandle(FW_KEYUP, (int)prefs->shootkey);
+	video = new Cvideo();
+	audio = new Caudio();  // create audio AFTER window is created!
+	timer = new Ctimer();  // Create timer facilities
+	movie = new Cmovie(audio, moviePlayer);  // Initiate movie playback features
 	
-	return false;
+	g_SettingsFlg = 0;	//we starten met het settings window off 
+	gbGameLoop = 1;
+	
+	heartbeat = NULL;
+    
+    if (!video->on(pixelBuffer, width, height, 256) )
+    {
+        //EXIT!
+        return false;
+    }
+    
+    heartbeat = framework_InitGame(video, audio, timer, movie);
+    
+    if (heartbeat == NULL)
+    {
+        //EXIT!
+        return false;
+    }
+}
+   
+// if someone wants to reset progress (aka start over). This is how to do it
+void resetProgress()
+{
+	//reset code
+	maxlevel = 0;
+
+	for(int i=0; i<13; i++)
+	{
+		blacksperlevel[i] = 0;
+		scoreblacksperlevel[i] = 0;
+	}
+}
+ 
+// if someone wants to enable the cheat. This is how to do it
+void enableCheat()
+{
+    //cheat code
+    maxlevel = 12;
+    
+    for(int i=0; i<13; i++)
+    {
+        blacksperlevel[i] = 0;
+        scoreblacksperlevel[i] = 0;
+    }
 }
 
-void blit_screen()
-{
-	VIDEO_WaitVSync();
-}
-
-void run_game_tick()
-{
-	if (moviePlayer && moviePlayer->isPlaying())
-		moviePlayer->update(pixelBuffer, GAME_WIDTH, GAME_HEIGHT, pixelBufferPitch);
+bool gameTick(uint8_t *pixels, int width, int height, int pitch)
+{    
+    audio->checkVolume();
+    
+    if (g_SettingsFlg) // settings screen op het beeld?
+        video->DrawSettings();
     else
-		gameTick(pixelBuffer, GAME_WIDTH, GAME_HEIGHT, pixelBufferPitch);
+    {
+        if (heartbeat != NULL)
+        {
+            heartbeat = (HEARTBEAT_FN) heartbeat();
+            if (heartbeat == NULL) // No heartbeat anymore, Let's close
+				return false;
+        }
+    }
+
+	return true;
 }
 
 int main(int argc, char **argv)
 {
-	VIDEO_Init();
-	WPAD_Init();
+	if (!initSystem())
+	{
+		printf("System failed to init");
+		shutdownSystem();
+		return 1;
+	}
 
-	rmode = VIDEO_GetPreferredMode(NULL);
-	xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode));
+	if (!initVideo())
+	{
+		printf("Video failed to init");
+		shutdownVideo();
+		shutdownSystem();
+		return 1;
+	}
 
-	VIDEO_Configure(rmode);
-	VIDEO_SetNextFramebuffer(xfb);
-	VIDEO_ClearFrameBuffer(rmode, xfb, COLOR_BLACK);
-	VIDEO_SetBlack(false);
-	VIDEO_Flush();
-	VIDEO_WaitVSync();
-	if (rmode->viTVMode & VI_NON_INTERLACE)
-		VIDEO_WaitVSync();
-	
-	__STM_Init();
-	//SYS_STDIO_Report(true);
+	if (!initAudio())
+	{
+		printf("Audio failed to init");
+		shutdownAudio();
+		shutdownVideo();
+		shutdownSystem();
+		return 1;
+	}
 
-	pixelBufferPitch = GAME_WIDTH * 4;
-	pixelBuffer = new uint8_t[pixelBufferPitch * GAME_HEIGHT];
-	memset(pixelBuffer, 0, pixelBufferPitch * GAME_HEIGHT);
-
-	moviePlayer = new MoviePlayer();
-
-	initMoonChild(pixelBuffer, GAME_WIDTH, GAME_HEIGHT, moviePlayer);
+	initMoonChild(pixelBuffer, GAME_WIDTH, GAME_HEIGHT);
 	while (1)
 	{
-		if (poll_pad())
+		if (pollEvents())
 			break;
-		run_game_tick();
-		blit_screen();
+		
+		syncMouse();
+
+    	waitUntilNextTickBoundary();
+
+		if (moviePlayer && moviePlayer->isPlaying())
+			moviePlayer->update(pixelBuffer, GAME_WIDTH, GAME_HEIGHT, pixelBufferPitch);
+		else if (!gameTick(pixelBuffer, GAME_WIDTH, GAME_HEIGHT, pixelBufferPitch))
+			break;
+
+		blitScreen();
+
+		advanceTickSchedule();
 	}
 
 	return 0;

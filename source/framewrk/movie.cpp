@@ -1,5 +1,5 @@
 #include "frm_int.hpp"
-#include "../wii_movie_player.h"
+#include "platform_movie_player.h"
 // videos of Moon Child were in a proprietary format called Smackplayer'. However that doesn't exist anymore so videos not supported.
 // hover I leave this class here so you'll see the point where the movie get's called... It just doesn't play anything now
 

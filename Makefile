@@ -17,9 +17,9 @@ include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source/framewrk source/moonchild source
-DATA		:=	data
-INCLUDES	:=  
+SOURCES		:=	source/framewrk source/moonchild source platform/wii
+DATA		:=	assets
+INCLUDES	:=  platform source
 
 #---------------------------------------------------------------------------------
 # options for code generation

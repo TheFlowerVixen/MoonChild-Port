@@ -1,5 +1,5 @@
 #include "frm_int.hpp"
-#include "../wii_audio.h"
+#include "platform_audio.h"
 
 float calcVolume(INT32 volume);
 float calcPan(INT32 pan);

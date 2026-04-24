@@ -14,7 +14,6 @@
 #include <stdarg.h>
 
 #include "mydefs.hpp"
-#include "../wii_util.h"   // auxilary methods from SDL to cater for the game
 //#include "basedefs.hpp"
 //#include "vgassert.hpp"
 //#include "log.hpp"

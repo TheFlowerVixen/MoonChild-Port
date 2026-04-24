@@ -21,7 +21,7 @@ UINT16 Caudio::play_cd(UINT16 tracknr)
     if (!track.track) return 0;
 
     loadMusicFile(FullAudioPath((char *)track.track));
-    playMusicLooping();
+    playMusicLooping(track.volume);
 
 	return 0;
 }

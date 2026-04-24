@@ -40,7 +40,7 @@ void volumeWaveSample(int assetHandle, int volume);
 bool panWaveSample(int assetHandle, int left, int right);
 
 bool loadMusicFile(char *path);
-void playMusicLooping();
+void playMusicLooping(float volume);
 void stopMusic();
 
 void playTestWavSound();

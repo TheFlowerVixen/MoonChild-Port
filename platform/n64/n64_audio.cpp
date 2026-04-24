@@ -178,7 +178,7 @@ bool loadMusicFile(char *path)
     return true;
 }
 
-void playMusicLooping()
+void playMusicLooping(float volume)
 {
     wav64_play(music, CHANNEL_MUSIC);
 }

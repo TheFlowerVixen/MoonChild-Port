@@ -266,10 +266,11 @@ bool loadMusicFile(char *path) {
   return true;
 }
 
-void playMusicLooping() {
+void playMusicLooping(float volume) {
   if (!loadedMusic) {
     return;
   }
+  Mix_VolumeMusic(volume * MIX_MAX_VOLUME);
   Mix_PlayMusic(loadedMusic, -1);
 }
 
@@ -291,24 +292,4 @@ void playTestWavSound() {
     return;
   }
   printf("test wav: played %s (channel %d)\n", testWavPath, channel);
-}
-
-void toggleTestMusic() {
-  if (!testMusicLoaded) {
-    if (!loadMusicFile(testMp3Path)) {
-      printf("test mp3: still could not load %s\n", testMp3Path);
-      return;
-    }
-    testMusicLoaded = true;
-    playMusicLooping();
-    printf("test mp3: started %s\n", testMp3Path);
-    return;
-  }
-  if (Mix_PlayingMusic()) {
-    stopMusic();
-    printf("test mp3: stopped\n");
-  } else {
-    playMusicLooping();
-    printf("test mp3: started\n");
-  }
 }

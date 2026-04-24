@@ -12,8 +12,8 @@ void shutdownSystem();
 
 bool pollEvents();
 void syncMouse();
-void waitUntilNextTickBoundary();
-void advanceTickSchedule();
+void preSync();
+void postSync();
 
 char *FullPath(char *filename);
 char *FullAudioPath(char *filename);

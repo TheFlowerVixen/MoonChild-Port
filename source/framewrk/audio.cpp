@@ -1,5 +1,4 @@
 #include "frm_int.hpp"
-#include "platform_audio.h"
 
 float calcVolume(INT32 volume);
 float calcPan(INT32 pan);
@@ -17,42 +16,11 @@ Caudio::~Caudio(void)
 
 UINT16 Caudio::play_cd(UINT16 tracknr)
 {
-    const char *track = NULL;
-    float volume = 1.0f;
-    switch(tracknr)
-    {
-        case 2:
-            track = "title.mp3";
-            volume = 0.8f;
-            break;
-        case 3:
-            track = "world1.mp3";
-            volume = 0.5f;
-            break;
-        case 4:
-            track = "world2.mp3";
-            volume = 0.5f;
-            break;
-        case 5:
-            track = "world3.mp3";
-            volume = 0.5f;
-            break;
-        case 6:
-            track = "world4.mp3";
-            volume = 0.5f;
-            break;
-        case 7:
-            track = "gameover.mp3";
-            volume = 1.0f;
-            break;
-        default:
-            printf("audio track %d requested", tracknr);
-            break;
-    }
+    TrackInfo track = getTrackInfo((TrackID)tracknr);
     
-    if(!track) return 0;
+    if (!track.track) return 0;
 
-    loadMusicFile(FullAudioPath((char *)track));
+    loadMusicFile(FullAudioPath((char *)track.track));
     playMusicLooping();
 
 	return 0;

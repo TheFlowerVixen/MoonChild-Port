@@ -258,7 +258,7 @@ HEARTBEAT_FN MC_deadsequence(void);
 
 void killpuzzle(void);
 UINT16 compscore(char *score1, char *score2);
-int  startmovie( char *movname, char *movkadername);
+int  startmovie(MovieID movieID, char *movkadername);
 void handleinput1shot(void);
 void handleinputloop(void);
 UINT16 convscore(void);
@@ -1000,7 +1000,7 @@ HEARTBEAT_FN MC_startmovie(void)
 
 
 #ifdef MOVIES
-  if (startmovie("intro.smk", "assets\\frmintro.pcx") == 0)
+  if (startmovie(MOVIE_INTRO, "assets\\frmintro.pcx") == 0)
   {
 	  return 0;
   }
@@ -1144,7 +1144,7 @@ void disablefastfile(void)
 }
 
 
-int startmovie( char *movname, char *movkadername)
+int startmovie(MovieID movieID, char *movkadername)
 {
 
 // are the movies turned on???
@@ -1170,7 +1170,7 @@ int startmovie( char *movname, char *movkadername)
  
   
 //  vgassert(!mcsmk);      // still one open?
-  mcsmk = movie->open(movname);
+  mcsmk = movie->open(movieID);
   if (mcsmk == 0) 
   {
 //    framework_util_displayerror("Can't locate movie files... Is the Moon Child CD inserted?");
@@ -1548,7 +1548,7 @@ HEARTBEAT_FN MC_nextlevel(void)
   {
     level--;
     movieleavefunc = (HEARTBEAT_FN) MC_prepentername2;  //MC_preppuzzleselect;
-    if (startmovie("extro.smk", "assets\\frmextro.pcx") == 0)
+    if (startmovie(MOVIE_EXTRO, "assets\\frmextro.pcx") == 0)
     {
 	    return 0;
     }
@@ -1582,7 +1582,7 @@ HEARTBEAT_FN MC_levelstartmovie(void)
   {
     if (world == 1)
     {
-      if(startmovie("bumper12.smk", "assets\\frmenv12.pcx") == 0)
+      if(startmovie(MOVIE_BUMPER_1_2, "assets\\frmenv12.pcx") == 0)
 	  {
 		  return 0;
 	  }
@@ -1590,7 +1590,7 @@ HEARTBEAT_FN MC_levelstartmovie(void)
     }
     if (world == 2)
     {
-      if(startmovie("bumper23.smk", "assets\\frmenv23.pcx") == 0)
+      if(startmovie(MOVIE_BUMPER_2_3, "assets\\frmenv23.pcx") == 0)
 	  {
 		  return 0;
 	  }
@@ -1598,7 +1598,7 @@ HEARTBEAT_FN MC_levelstartmovie(void)
     }
     if (world == 3)
     {
-      if (startmovie("bumper34.smk", "assets\\frmenv34.pcx") == 0)
+      if (startmovie(MOVIE_BUMPER_3_4, "assets\\frmenv34.pcx") == 0)
 	  {
 		  return 0;
 	  }
@@ -2019,7 +2019,7 @@ HEARTBEAT_FN MC_endtitle(void)
 
 #ifdef MOVIES
   movieleavefunc = (HEARTBEAT_FN) MC_startsampler;
-  if(startmovie("extro.smk", "assets\\frmextro.pcx") == 0)
+  if(startmovie(MOVIE_EXTRO, "assets\\frmextro.pcx") == 0)
   {
 	  return 0;
   }
@@ -4429,7 +4429,7 @@ HEARTBEAT_FN MC_prepentername(void)
 
 #ifdef MOVIES
 
- if (startmovie("gameover.smk", "assets\\frmgamov.pcx") == 0)
+ if (startmovie(MOVIE_GAME_OVER, "assets\\frmgamov.pcx") == 0)
  {
 	return 0;
  }

@@ -1,8 +1,28 @@
 #ifndef _PLATFORM_AUDIO_H
 #define _PLATFORM_AUDIO_H
 
+enum TrackID
+{
+    TRACK_0_UNUSED,
+    TRACK_1_UNUSED,
+    TRACK_2_TITLE,
+    TRACK_3_WORLD_1,
+    TRACK_4_WORLD_2,
+    TRACK_5_WORLD_3,
+    TRACK_6_WORLD_4,
+    TRACK_7_GAME_OVER
+};
+
+typedef struct TrackInfo_s
+{
+    const char* track;
+    float volume;
+} TrackInfo;
+
 bool initAudio();
 void shutdownAudio();
+
+TrackInfo getTrackInfo(TrackID id);
 
 // Wave asset handle from loadWaveSample (>= 0). Distinct from channel handles returned by play*.
 int loadWaveSample(char *path);

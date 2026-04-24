@@ -30,6 +30,8 @@
 
 #define FLOG
 
+#define BIGENDIAN32(x) ((x & 0xFF000000) >> 24) | ((x & 0x00FF0000) >> 8) | ((x & 0x0000FF00) << 8) | ((x & 0x000000FF) << 24)
+
 char cachename[128];
 int cachesize;
 
@@ -165,11 +167,22 @@ int FastFileInit( char *fname, int max_handles )
 
 		fread(&dwFECnt, 1, 4, fHndl);
 
+#ifdef PLATFORM_N64
+		dwFECnt = BIGENDIAN32(dwFECnt);
+#endif
+
 		pBase = (BYTE *) malloc(sizeof(FILEENTRY) * dwFECnt + 4);
 		memcpy((void *)pBase, (void *)&dwFECnt, 4);
 
 		pFE = (FILEENTRY *)(pBase+4);
 		fread(pFE, 1, sizeof(FILEENTRY) * dwFECnt, fHndl);
+
+#ifdef PLATFORM_N64
+		// fix endianness of offsets
+		for (int i = 0; i < dwFECnt; i++)
+			pFE[i].offset = BIGENDIAN32(pFE[i].offset);
+#endif
+		
 		fseek(fHndl, 0, SEEK_SET );		// rewind
 	    lFileEnd = pFE[dwFECnt-1].offset;
 

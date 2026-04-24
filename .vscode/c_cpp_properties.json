@@ -31,7 +31,16 @@
         ],
         "sdlDefines": [
         ],
+        "n64IncludePaths": [
+            "C:/n64-toolchain/include",
+            "C:/n64-toolchain/mips64-elf/include",
+            "C:/libdragon/include"
+        ],
+        "n64Defines": [
+            "PLATFORM_N64"
+        ],
         "ppcCompilerPath": "C:/devkitPro/devkitPPC/bin/powerpc-eabi-g++",
+        "mipsCompilerPath": "C:/n64-toolchain/bin/mips64-elf-gcc",
         "winCompilerPath": "C:/msys64/ucrt64/bin/gcc"
     },
     "configurations": [
@@ -46,6 +55,21 @@
                 "${env:sdlDefines}"
             ],
             "compilerPath": "${env:winCompilerPath}",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-gcc-x64"
+        },
+        {
+            "name": "N64",
+            "includePath": [
+                "${env:defaultIncludePaths}",
+                "${env:n64IncludePaths}"
+            ],
+            "defines": [
+                "${env:defaultDefines}",
+                "${env:n64Defines}"
+            ],
+            "compilerPath": "${env:mipsCompilerPath}",
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "windows-gcc-x64"

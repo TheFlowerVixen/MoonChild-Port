@@ -1,10 +1,7 @@
 #include "platform_system.h"
 
-#include <ogcsys.h>
-#include <fat.h>
-#include <wiiuse/wpad.h>
+#include <libdragon.h>
 #include <cstdio>
-#include <unistd.h>
 
 #include "framewrk/frm_int.hpp"
 #include "moonchild/mc.hpp"
@@ -13,56 +10,63 @@
 
 MoviePlayer* moviePlayer;
 
-extern s32 __STM_Init();
-extern void __exception_closeall();
-extern s32 __IOS_ShutdownSubsystems();
+joypad_buttons_t butPressed;
+joypad_buttons_t butReleased;
 
 bool initSystem()
 {
-	__STM_Init();
-	SYS_STDIO_Report(true);
-	fatInitDefault();
+    debug_init_isviewer();
+    debug_init_usblog();
+
+    if (dfs_init(DFS_DEFAULT_LOCATION) != DFS_ESUCCESS)
+    {
+        printf("Filesystem failed to start!\n");
+        return 1;
+    }
+    else
+    {
+        printf("Filesystem started!\n");
+    }
+
+	joypad_init();
+
 	return true;
 }
 
 void shutdownSystem()
 {
-
+	joypad_close();
 }
 
 bool pollEvents()
 {
-	WPAD_ScanPads();
+    joypad_poll();
+    butPressed = joypad_get_buttons_pressed(JOYPAD_PORT_1);
+    butReleased = joypad_get_buttons_released(JOYPAD_PORT_1);
 
-	u32 buttonsDown = WPAD_ButtonsDown(0);
-	u32 buttonsUp = WPAD_ButtonsUp(0);
-
-	if (buttonsDown & WPAD_BUTTON_HOME)
-		return true;
-
-	if (buttonsDown & WPAD_BUTTON_RIGHT)
+    if (butPressed.d_up)
         framework_EventHandle(FW_KEYDOWN, (int)prefs->upkey);
-    if (buttonsUp & WPAD_BUTTON_RIGHT)
+    if (butReleased.d_up)
         framework_EventHandle(FW_KEYUP, (int)prefs->upkey);
     
-    if (buttonsDown & WPAD_BUTTON_LEFT)
+    if (butPressed.d_down)
         framework_EventHandle(FW_KEYDOWN, (int)prefs->downkey);
-    if (buttonsUp & WPAD_BUTTON_LEFT)
+    if (butReleased.d_down)
         framework_EventHandle(FW_KEYUP, (int)prefs->downkey);
     
-    if (buttonsDown & WPAD_BUTTON_DOWN)
+    if (butPressed.d_left)
         framework_EventHandle(FW_KEYDOWN, (int)prefs->leftkey);
-    if (buttonsUp & WPAD_BUTTON_DOWN)
+    if (butReleased.d_left)
         framework_EventHandle(FW_KEYUP, (int)prefs->leftkey);
     
-    if (buttonsDown & WPAD_BUTTON_UP)
+    if (butPressed.d_right)
         framework_EventHandle(FW_KEYDOWN, (int)prefs->rightkey);
-    if (buttonsUp & WPAD_BUTTON_UP)
+    if (butReleased.d_right)
         framework_EventHandle(FW_KEYUP, (int)prefs->rightkey);
 
-    if (buttonsDown & WPAD_BUTTON_2)
+    if (butPressed.a)
         framework_EventHandle(FW_KEYDOWN, (int)prefs->shootkey);
-    if (buttonsUp & WPAD_BUTTON_2)
+    if (butReleased.a)
         framework_EventHandle(FW_KEYUP, (int)prefs->shootkey);
 	
 	return false;
@@ -80,7 +84,7 @@ void preSync()
 
 void postSync()
 {
-
+	mixer_try_play();
 }
 
 // Called by the game to get the full path to a file
@@ -89,7 +93,7 @@ char *FullPath(char *filename)
 	static char buffer[4096];
 	if (!filename)
 		return nullptr;
-	snprintf(buffer, sizeof(buffer), "/moonchild_assets/moonchild/%s", filename);
+	snprintf(buffer, sizeof(buffer), "rom:/moonchild/%s", filename);
 	return buffer;
 }
 
@@ -99,27 +103,25 @@ char *FullAudioPath(char *filename)
 	static char buffer[4096];
 	if (!filename)
 		return nullptr;
-	snprintf(buffer, sizeof(buffer), "/moonchild_assets/audio/%s", filename);
+	snprintf(buffer, sizeof(buffer), "rom:/audio/%s", filename);
 	return buffer;
 }
 
+// Called by the game to get the full path to a movie file
 char *FullMoviePath(char *filename)
 {
 	static char buffer[4096];
 	if (!filename)
 		return nullptr;
-	snprintf(buffer, sizeof(buffer), "/moonchild_assets/movies/%s", filename);
+	snprintf(buffer, sizeof(buffer), "rom:/movies/%s", filename);
 	return buffer;
 }
 
 // Called by the game to get the full path to a writable file (Only hiscore file)
 char *FullWritablePath(char *filename)
-{
-	static char buffer[4096];
-	if (!filename)
-		return nullptr;
-	snprintf(buffer, sizeof(buffer), "/moonchild_save/%s", filename);
-	return buffer;
+{	
+	// TODO: writable path
+	return nullptr;
 }
 
 // Internal method (only used here) to load a TGA file
@@ -133,10 +135,10 @@ unsigned short*LoadTGA(char *FileName)
 	// load targa file
 	BYTE* tgabuff = new BYTE[20];
 	bool OK = true;
-  FILE *tga = fopen( FullPath(FileName), "rb" );
-  if (!tga) return 0;
-  fread(tgabuff, 20, 1, tga);
-  fclose(tga);
+  	FILE *tga = fopen( FullPath(FileName), "rb" );
+  	if (!tga) return 0;
+  	fread(tgabuff, 20, 1, tga);
+  	fclose(tga);
 	// gzFile tga = gzopen( FullPath(FileName), "rb" );
 	// if (!tga) return 0; 
 	// gzread(tga, tgabuff, 20);
@@ -176,7 +178,7 @@ unsigned short*LoadTGA(char *FileName)
 	tgabuff = new BYTE[size];
 	dest = new unsigned short[w*h];  // hier komt uitgepakte plaatje
   
-  // replace the gzip loading by normal loading
+  	// replace the gzip loading by normal loading
 	// tga = gzopen( FullPath(FileName), "rb" );
 	// if (!tga)
 	// {
@@ -186,15 +188,15 @@ unsigned short*LoadTGA(char *FileName)
 	// }
 	// int read = gzread( tga, tgabuff, size );
 	// gzclose( tga );
-  tga = fopen( FullPath(FileName), "rb" );
+  	tga = fopen( FullPath(FileName), "rb" );
 	if (!tga)
 	{
 	 	delete [] tgabuff;
 	 	delete [] dest;
 	 	return 0;
 	}
-  fread(tgabuff, size, 1, tga);
-  fclose(tga);
+  	fread(tgabuff, size, 1, tga);
+  	fclose(tga);
 	
 	if (TgaImgType == 1)
 	{
@@ -252,10 +254,10 @@ unsigned short*LoadTGA(char *FileName)
 // Called by the game to show a picture (tga)
 void ShowPicture(char *FileName)
 {
-  unsigned short *TempPic;
+  	unsigned short *TempPic;
 	TempPic   = LoadTGA(FileName);
     
-	//video->DrawTempPic();
+	video->DrawTempPic();
     
 	delete [] TempPic;
 }

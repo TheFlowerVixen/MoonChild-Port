@@ -1,5 +1,4 @@
 #include "frm_int.hpp"
-#include "platform_movie_player.h"
 // videos of Moon Child were in a proprietary format called Smackplayer'. However that doesn't exist anymore so videos not supported.
 // hover I leave this class here so you'll see the point where the movie get's called... It just doesn't play anything now
 
@@ -31,49 +30,21 @@ Cmovie::~Cmovie(void)
 }
 
 
-Smack *Cmovie::open(char *filename)
+Smack *Cmovie::open(MovieID id)
 {
-    printf("trying to play movie: %s", filename);
-    if(strcmp(filename, (char *)"intro.smk")==0)
+    const char* moviePath = getMoviePath(id);
+    if (moviePath == nullptr)
     {
+        printf("Trying to play unknown moviefile!");
+        return 0;
+    }
+    else
+    {
+        printf("trying to play movie: %s", moviePath);
         this->videoFilename = "intro.mp4";
         this->videoReady = false;
         return (Smack *)1;
     }
-    if(strcmp(filename, (char *)"bumper12.smk")==0)
-    {
-        this->videoFilename = "bumper12.mp4";
-        this->videoReady = false;
-        return (Smack *)1;
-    }
-    if(strcmp(filename, (char *)"bumper23.smk")==0)
-    {
-        this->videoFilename = "bumper23.mp4";
-        this->videoReady = false;
-        return (Smack *)1;
-    }
-    if(strcmp(filename, (char *)"bumper34.smk")==0)
-    {
-        this->videoFilename = "bumper34.mp4";
-        this->videoReady = false;
-        return (Smack *)1;
-    }
-    if(strcmp(filename, (char *)"extro.smk")==0)
-    {
-        this->videoFilename = "extro.mp4";
-        this->videoReady = false;
-        return (Smack *)1;
-    }
-    if(strcmp(filename, (char *)"gameover.smk")==0)
-    {
-        this->videoFilename = "gameover.mp4";
-        this->videoReady = false;
-        return (Smack *)1;
-    }
-    
-    printf("Trying to play unknown moviefile!");
-    
-	return 0;
 }
 
 

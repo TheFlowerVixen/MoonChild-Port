@@ -7,6 +7,33 @@
 #include <cstring>
 #include <vector>
 
+const char* getMoviePath(MovieID id)
+{
+    switch (id)
+    {
+        case MOVIE_INTRO:
+            return "intro.mp4";
+        
+        case MOVIE_BUMPER_1_2:
+            return "bumper12.mp4";
+        
+        case MOVIE_BUMPER_2_3:
+            return "bumper23.mp4";
+        
+        case MOVIE_BUMPER_3_4:
+            return "bumper34.mp4";
+        
+        case MOVIE_EXTRO:
+            return "extro.mp4";
+        
+        case MOVIE_GAME_OVER:
+            return "gameover.mp4";
+        
+        default:
+            return nullptr;
+    }
+}
+
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>

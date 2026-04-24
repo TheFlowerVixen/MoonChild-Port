@@ -3,6 +3,18 @@
 
 #include <cstdint>
 
+enum MovieID
+{
+  MOVIE_INTRO,
+  MOVIE_BUMPER_1_2,
+  MOVIE_BUMPER_2_3,
+  MOVIE_BUMPER_3_4,
+  MOVIE_EXTRO,
+  MOVIE_GAME_OVER
+};
+
+const char* getMoviePath(MovieID id);
+
 typedef void (*MovieDoneCallback)(bool naturalEnd, void *userData);
 
 class MoviePlayer {

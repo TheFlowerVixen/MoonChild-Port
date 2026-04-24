@@ -171,7 +171,7 @@ void syncMouse()
 	prevLeft = left;
 }
 
-void waitUntilNextTickBoundary()
+void preSync()
 {
 	for (;;)
 	{
@@ -186,7 +186,7 @@ void waitUntilNextTickBoundary()
 	}
 }
 
-void advanceTickSchedule()
+void postSync()
 {
 	uint64_t now = SDL_GetPerformanceCounter();
 	nextTickTime += tickIntervalTicks;

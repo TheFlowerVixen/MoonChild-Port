@@ -5,6 +5,8 @@
 
 typedef long HSNDOBJ;
 
+#include "platform_audio.h"
+
 
 class Caudio {
 

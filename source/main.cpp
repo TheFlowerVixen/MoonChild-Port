@@ -132,7 +132,7 @@ int main(int argc, char **argv)
 		
 		syncMouse();
 
-    	waitUntilNextTickBoundary();
+    	preSync();
 
 		if (moviePlayer && moviePlayer->isPlaying())
 			moviePlayer->update(pixelBuffer, GAME_WIDTH, GAME_HEIGHT, pixelBufferPitch);
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 
 		blitScreen();
 
-		advanceTickSchedule();
+		postSync();
 	}
 
 	shutdownAudio();

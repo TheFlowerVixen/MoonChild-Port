@@ -5,22 +5,22 @@ const char* getMoviePath(MovieID id)
     switch (id)
     {
         case MOVIE_INTRO:
-            return "intro.mp4";
+            return "intro.h264";
         
         case MOVIE_BUMPER_1_2:
-            return "bumper12.mp4";
+            return "bumper12.h264";
         
         case MOVIE_BUMPER_2_3:
-            return "bumper23.mp4";
+            return "bumper23.h264";
         
         case MOVIE_BUMPER_3_4:
-            return "bumper34.mp4";
+            return "bumper34.h264";
         
         case MOVIE_EXTRO:
-            return "extro.mp4";
+            return "extro.h264";
         
         case MOVIE_GAME_OVER:
-            return "gameover.mp4";
+            return "gameover.h264";
         
         default:
             return nullptr;

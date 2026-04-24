@@ -5,6 +5,8 @@
 
 class MoviePlayer;
 
+#include "platform_movie_player.h"
+
 typedef struct {
   s32 x;
   s32 y;
@@ -28,7 +30,7 @@ public:
   Cmovie    (Caudio *audio, MoviePlayer *moviePlayer);
   ~Cmovie   (void);
 
-  Smack    *open(char *filename);
+  Smack    *open(MovieID id);
   void      close(Smack *smk);
 
   void      playtovideo(Smack *smk, Cvideo *video, Cblitbuf *hulpbuf, UINT16 zoomfactor);

@@ -27,8 +27,14 @@ const char* getMoviePath(MovieID id)
     }
 }
 
+struct MoviePlayer::Impl
+{
+
+};
+
 MoviePlayer::MoviePlayer()
 {
+    impl = new Impl();
     playing = false;
     streamEnded = false;
     movieDurationSec = 0.0;
@@ -39,33 +45,65 @@ MoviePlayer::MoviePlayer()
 MoviePlayer::~MoviePlayer()
 {
     clearState();
+    delete impl;
+    impl = nullptr;
 }
 
 void MoviePlayer::clearState()
 {
+    if (!impl)
+        return;
 }
 
 bool MoviePlayer::playFile(char *filePath, MovieDoneCallback callback, void *userData)
 {
-    return false;
+    clearState();
+
+    doneCallback = callback;
+    doneUserData = userData;
+    
+    if (!filePath)
+        return false;
+    
+    // Skip movie for now; not implemented
+    invokeDoneCallback(true);
+
+    return true;
 }
 
 void MoviePlayer::invokeDoneCallback(bool naturalEnd)
 {
+    MovieDoneCallback callback = doneCallback;
+    void *userData = doneUserData;
+    doneCallback = nullptr;
+    doneUserData = nullptr;
+    if (callback)
+        callback(naturalEnd, userData);
 }
 
 void MoviePlayer::stop(bool naturalEnd)
 {
+    if (!playing)
+    {
+        clearState();
+        return;
+    }
+
+    clearState();
+    invokeDoneCallback(naturalEnd);
 }
 
 bool MoviePlayer::isPlaying()
 {
-    return false;
+    return playing;
 }
 
 bool MoviePlayer::decodeNextFrame()
 {
-    return false;
+    if (!playing)
+        return false;
+    
+    return true;
 }
 
 void MoviePlayer::presentCurrentFrame(uint8_t *pixels, int width, int height, int pitch)
@@ -74,4 +112,6 @@ void MoviePlayer::presentCurrentFrame(uint8_t *pixels, int width, int height, in
 
 void MoviePlayer::update(uint8_t *pixels, int width, int height, int pitch)
 {
+    if (!playing)
+        return;
 }

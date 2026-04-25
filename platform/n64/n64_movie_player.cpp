@@ -75,9 +75,17 @@ void MoviePlayer::clearState()
 bool MoviePlayer::playFile(char *filePath, MovieDoneCallback callback, void *userData)
 {
     clearState();
+
+    doneCallback = callback;
+    doneUserData = userData;
+    
     if (!filePath)
         return false;
+    
+    // Skip video for now; not finished
+    invokeDoneCallback(true);
 
+    /*
     static char videoFilePath[4096];
     static char audioFilePath[4096];
 
@@ -98,6 +106,7 @@ bool MoviePlayer::playFile(char *filePath, MovieDoneCallback callback, void *use
     impl->audio = wav64_load(audioFilePath, NULL);
     if (!impl->audio)
         return false;
+    */
 
     return true;
 }

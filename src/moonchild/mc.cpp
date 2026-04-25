@@ -1146,6 +1146,9 @@ void disablefastfile(void)
 
 int startmovie(MovieID movieID, char *movkadername)
 {
+#ifndef ENABLE_MOVIES
+  return 1;
+#else
 
 // are the movies turned on???
       
@@ -1193,11 +1196,15 @@ int startmovie(MovieID movieID, char *movkadername)
 
 //  log_out("to the movie proc loop");
   return 1;
+#endif
 }
 
 
 HEARTBEAT_FN MC_playingmovie(void)
 {
+#ifndef ENABLE_MOVIES
+  return (HEARTBEAT_FN) movieleavefunc;
+#else
   // are the movies turned on???
       
   if (!animsflg) return (HEARTBEAT_FN) movieleavefunc;;
@@ -1227,6 +1234,7 @@ HEARTBEAT_FN MC_playingmovie(void)
     video->swap();
     return (HEARTBEAT_FN) movieleavefunc;
   }
+#endif
 }
 
 

@@ -1,9 +1,39 @@
 #include "platform_audio.h"
 
+#include <asndlib.h>
+#include <gccore.h>
 #include <cstdio>
+#include <mp3player.h>
+
+#define log(x) fprintf(stderr, "debug: %s\r\n", x);
+
+// Music (devkitPro mp3 player)
+
+FILE* musicFile;
+
+s32 readMusicFile(void* cb_data, void* readStart, s32 readSize)
+{
+    return (s32)fread(readStart, readSize, 1, (FILE*)cb_data);
+}
+
+// SFX (ASND library)
+
+static lwpq_t audioQueue = LWP_TQUEUE_NULL;
+static lwp_t audioThread = LWP_THREAD_NULL;
+static bool audioThreadRunning = false;
+
+static void* audioThreadRoutine()
+{
+    while (audioThreadRunning)
+    {
+        
+    }
+}
 
 bool initAudio()
 {
+    ASND_Init();
+    MP3Player_Init();
     return true;
 }
 
@@ -89,13 +119,21 @@ bool panWaveSample(int assetHandle, int left, int right)
 
 bool loadMusicFile(char *path)
 {
-    return true;
+    musicFile = fopen(path, "rb");
+    return musicFile;
 }
 
 void playMusicLooping(float volume)
 {
+    MP3Player_Volume(volume * MAX_VOLUME);
+    MP3Player_PlayFile(musicFile, readMusicFile, NULL);
 }
 
 void stopMusic()
 {
+    if (MP3Player_IsPlaying() && musicFile)
+    {
+        MP3Player_Stop();
+        fclose(musicFile);
+    }
 }

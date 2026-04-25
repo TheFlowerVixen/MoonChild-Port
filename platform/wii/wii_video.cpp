@@ -185,6 +185,9 @@ void shutdownVideo()
 
 void blitScreen()
 {
+    // copy pixel buffer into fbGX
+    memcpy(fbGX, pixelBuffer, pixelBufferPitch * GAME_HEIGHT);
+
     VIDEO_WaitVSync();
     //tiled rendering code
     //declare pointer to pixel xy in xfb

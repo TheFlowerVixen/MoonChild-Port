@@ -229,6 +229,12 @@ void CAudio::doInit(void) {
 }
 
 void CAudio::doShutdown(void) {
+    for (u32 i = 0; i < MAX_SAMPLE_COUNT; i++) {
+        if (mSampleData[i].inUse) {
+            freeSample(i);
+        }
+    }
+
     ASND_End();
 }
 
@@ -267,6 +273,9 @@ void CAudio::freeSample(s32 sampleIndex) {
         return;
     }
     SampleData *sampleData = &mSampleData[sampleIndex];
+    if (!sampleData->inUse) {
+        return;
+    }
 
     if (sampleData->playbackState != SampleData::PLAYBACK_STOPPED) {
         sampleData->stopPlayback();
@@ -281,6 +290,9 @@ void CAudio::startSamplePlayback(s32 sampleIndex, u8 volume, bool loop) {
         return;
     }
     SampleData *sampleData = &mSampleData[sampleIndex];
+    if (!sampleData->inUse) {
+        return;
+    }
 
     sampleData->playbackVolume = volume;
     sampleData->playbackPanL = 255;
@@ -293,6 +305,9 @@ void CAudio::stopSamplePlayback(s32 sampleIndex) {
         return;
     }
     SampleData *sampleData = &mSampleData[sampleIndex];
+    if (!sampleData->inUse) {
+        return;
+    }
 
     sampleData->stopPlayback();
 }
@@ -302,6 +317,9 @@ void CAudio::setSamplePlaybackPause(s32 sampleIndex, bool pause) {
         return;
     }
     SampleData *sampleData = &mSampleData[sampleIndex];
+    if (!sampleData->inUse) {
+        return;
+    }
 
     sampleData->setPlaybackPause(pause);
 }
@@ -311,6 +329,9 @@ void CAudio::setSamplePlaybackVolume(s32 sampleIndex, u8 volume) {
         return;
     }
     SampleData *sampleData = &mSampleData[sampleIndex];
+    if (!sampleData->inUse) {
+        return;
+    }
 
     sampleData->playbackVolume = volume;
     sampleData->retuneVoice();
@@ -321,6 +342,9 @@ void CAudio::setSamplePlaybackPan(s32 sampleIndex, u8 panL, u8 panR) {
         return;
     }
     SampleData *sampleData = &mSampleData[sampleIndex];
+    if (!sampleData->inUse) {
+        return;
+    }
 
     sampleData->playbackPanL = panL;
     sampleData->playbackPanR = panR;
@@ -488,7 +512,14 @@ void stopWaveSample(int assetHandle) {
 }
 
 void volumeWaveSample(int assetHandle, int volume) {
-    sAudio.setSamplePlaybackVolume(assetHandle, (u8)(volume * (255.0f / (float)MAXVOLUME)));
+    if (volume > MAXVOLUME) {
+        volume = MAXVOLUME;
+    }
+    else if (volume < 0) {
+        volume = 0;
+    }
+
+    sAudio.setSamplePlaybackVolume(assetHandle, static_cast<u8>(volume * (255.0f / MAXVOLUME)));
 }
 
 bool panWaveSample(int assetHandle, int left, int right) {
@@ -516,9 +547,18 @@ bool loadMusicFile(char *path) {
 
     return true;
 }
+
 void playMusicLooping(float volume) {
+    if (volume > 1.0f) {
+        volume = 1.0f;
+    }
+    else if (volume < 0.0f) {
+        volume = 0.0f;
+    }
+
     sAudio.startBGMPlayback(volume * 255.0f);
 }
+
 void stopMusic() {
     sAudio.stopBGMPlayback();
 }

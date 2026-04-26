@@ -21,6 +21,8 @@
 #include "fastfile.h"
 #include "mydefs.hpp"
 
+#include "macro.h"
+
 // strip the directory path of all files provided to open
 #define USEBASENAME 1
 
@@ -29,8 +31,6 @@
 //#define LOG
 
 #define FLOG
-
-#define BIGENDIAN32(x) ((x & 0xFF000000) >> 24) | ((x & 0x00FF0000) >> 8) | ((x & 0x0000FF00) << 8) | ((x & 0x000000FF) << 24)
 
 char cachename[128];
 int cachesize;
@@ -167,8 +167,8 @@ int FastFileInit( char *fname, int max_handles )
 
 		fread(&dwFECnt, 1, 4, fHndl);
 
-#if defined(PLATFORM_N64) || defined(PLATFORM_WII)
-		dwFECnt = BIGENDIAN32(dwFECnt);
+#ifdef BIGENDIAN
+		dwFECnt = BE_BSWAP_32(dwFECnt);
 #endif
 
 		pBase = (BYTE *) malloc(sizeof(FILEENTRY) * dwFECnt + 4);
@@ -177,10 +177,10 @@ int FastFileInit( char *fname, int max_handles )
 		pFE = (FILEENTRY *)(pBase+4);
 		fread(pFE, 1, sizeof(FILEENTRY) * dwFECnt, fHndl);
 
-#if defined(PLATFORM_N64) || defined(PLATFORM_WII)
+#ifdef BIGENDIAN
 		// fix endianness of offsets
 		for (int i = 0; i < dwFECnt; i++)
-			pFE[i].offset = BIGENDIAN32(pFE[i].offset);
+			pFE[i].offset = BE_BSWAP_32(pFE[i].offset);
 #endif
 		
 		fseek(fHndl, 0, SEEK_SET );		// rewind

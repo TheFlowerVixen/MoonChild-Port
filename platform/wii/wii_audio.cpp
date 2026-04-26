@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <mp3player.h>
 
-#define log(x) fprintf(stderr, "debug: %s\r\n", x);
+#include "macro.h"
 
 // Music (devkitPro mp3 player)
 

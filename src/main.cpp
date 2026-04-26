@@ -16,7 +16,7 @@ int g_MouseYDown = 0;
 int g_MouseXCurrent = 0;
 int g_MouseYCurrent = 0;
 
-#define log(x) fprintf(stderr, "debug: %s\r\n", x);
+#include "macro.h"
 
 bool initMoonChild(unsigned char *pixelBuffer, int width, int height)
 {

@@ -5,6 +5,8 @@
 
 #if defined(PLATFORM_N64) || defined(PLATFORM_WII)
 
+#define BIGENDIAN
+
 #define BE_BSWAP_16(x) ((((x) >> 8) & 0xff) | (((x) & 0xff) << 8))
 #define BE_BSWAP_32(x)                                            \
      ((((x) & 0xff000000) >> 24) | (((x) & 0x00ff0000) >>  8) |   \
@@ -20,5 +22,7 @@
 #define FRMWORK_ASSERT(condition) do { \
     if (!(condition)) { printf("[FRMWORK_ASSERT] Assertion failed: " #condition "\n"); for (;;); } \
 } while (0)
+
+#define log(x) fprintf(stderr, "debug: %s\r\n", x);
 
 #endif // MACRO_H

@@ -13,6 +13,7 @@
 #include "moonchild/prefs.hpp"
 
 MoviePlayer* moviePlayer;
+
 class CSystem {
 public:
 	CSystem() {}
@@ -41,6 +42,10 @@ private:
 	u32 mButtonsHeld;
 };
 static CSystem sSystem;
+
+/*
+ * Implementation
+ */
 
 void CSystem::doInit(void) {
 	SYS_STDIO_Report(true);

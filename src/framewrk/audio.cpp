@@ -16,6 +16,8 @@ Caudio::~Caudio(void)
 
 UINT16 Caudio::play_cd(UINT16 tracknr)
 {
+    printf("play_cd(%d)\n", tracknr);
+    
     TrackInfo track = getTrackInfo((TrackID)tracknr);
     
     if (!track.track) return 0;

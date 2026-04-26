@@ -4,7 +4,6 @@
 #include <cstdint>
 
 class MoviePlayer;
-
 extern MoviePlayer* moviePlayer;
 
 bool initSystem();

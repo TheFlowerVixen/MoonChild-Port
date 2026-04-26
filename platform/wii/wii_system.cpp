@@ -90,6 +90,7 @@ void CSystem::updateMoonChild(void) {
 	moonChildSubmitKey(WPAD_BUTTON_UP, prefs->leftkey);
 
 	moonChildSubmitKey(WPAD_BUTTON_2, prefs->shootkey);
+	moonChildSubmitKey(WPAD_BUTTON_PLUS, 'Q');
 }
 
 /*

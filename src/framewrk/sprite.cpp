@@ -124,7 +124,7 @@ extern short g_RenderMode;
 
 UINT16 frmwrk_fastblit(Cblitbuf *src, Cblitbuf &dest, int x1, int y1, int x2, int y2, int w, int h, int key)
 {
-	// printf("frmwrk_fastblit (0x%x, 0x%x, %d, %d, %d, %d, %d, %d, %d)\n", src, &dest, x1, y1, x2, y2, w, h, key);
+	// printf("frmwrk_fastblit (%p, %p, %d, %d, %d, %d, %d, %d, %d)\n", src, &dest, x1, y1, x2, y2, w, h, key);
 
 	RECT    rect,drect;
 

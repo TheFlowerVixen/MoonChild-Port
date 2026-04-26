@@ -164,7 +164,7 @@ void SampleData::startPlayback(bool loopEnable) {
     printf("[SampleData::startPlayback] Playback of voice #%d has started\n", playbackVoice);
     printf("[SampleData::startPlayback] sampleRate=%d\n", sampleRate);
     printf("[SampleData::startPlayback] asndFormat=%d\n", asndFormat);
-    printf("[SampleData::startPlayback] sampleData=0x%x\n", sampleData);
+    printf("[SampleData::startPlayback] sampleData=%p\n", sampleData);
     printf("[SampleData::startPlayback] sampleDataSize=%d\n", sampleDataSize);
     printf("[SampleData::startPlayback] volumeL=%d\n", volumeL);
     printf("[SampleData::startPlayback] volumeR=%d\n", volumeR);
@@ -263,7 +263,7 @@ s32 CAudio::createSample(void *wavData) {
 }
 
 void CAudio::freeSample(s32 sampleIndex) {
-    if ((sampleIndex < 0) || (sampleIndex >= MAX_SAMPLE_COUNT)) {
+    if ((sampleIndex < 0) || (sampleIndex >= (s32)MAX_SAMPLE_COUNT)) {
         return;
     }
     SampleData *sampleData = &mSampleData[sampleIndex];
@@ -273,7 +273,7 @@ void CAudio::freeSample(s32 sampleIndex) {
 }
 
 void CAudio::startSamplePlayback(s32 sampleIndex, u8 volume, bool loop) {
-    if ((sampleIndex < 0) || (sampleIndex >= MAX_SAMPLE_COUNT)) {
+    if ((sampleIndex < 0) || (sampleIndex >= (s32)MAX_SAMPLE_COUNT)) {
         return;
     }
     SampleData *sampleData = &mSampleData[sampleIndex];
@@ -285,7 +285,7 @@ void CAudio::startSamplePlayback(s32 sampleIndex, u8 volume, bool loop) {
 }
 
 void CAudio::stopSamplePlayback(s32 sampleIndex) {
-    if ((sampleIndex < 0) || (sampleIndex >= MAX_SAMPLE_COUNT)) {
+    if ((sampleIndex < 0) || (sampleIndex >= (s32)MAX_SAMPLE_COUNT)) {
         return;
     }
     SampleData *sampleData = &mSampleData[sampleIndex];
@@ -294,7 +294,7 @@ void CAudio::stopSamplePlayback(s32 sampleIndex) {
 }
 
 void CAudio::setSamplePlaybackPause(s32 sampleIndex, bool pause) {
-    if ((sampleIndex < 0) || (sampleIndex >= MAX_SAMPLE_COUNT)) {
+    if ((sampleIndex < 0) || (sampleIndex >= (s32)MAX_SAMPLE_COUNT)) {
         return;
     }
     SampleData *sampleData = &mSampleData[sampleIndex];
@@ -303,7 +303,7 @@ void CAudio::setSamplePlaybackPause(s32 sampleIndex, bool pause) {
 }
 
 void CAudio::setSamplePlaybackVolume(s32 sampleIndex, u8 volume) {
-    if ((sampleIndex < 0) || (sampleIndex >= MAX_SAMPLE_COUNT)) {
+    if ((sampleIndex < 0) || (sampleIndex >= (s32)MAX_SAMPLE_COUNT)) {
         return;
     }
     SampleData *sampleData = &mSampleData[sampleIndex];
@@ -313,7 +313,7 @@ void CAudio::setSamplePlaybackVolume(s32 sampleIndex, u8 volume) {
 }
 
 void CAudio::setSamplePlaybackPan(s32 sampleIndex, u8 panL, u8 panR) {
-    if ((sampleIndex < 0) || (sampleIndex >= MAX_SAMPLE_COUNT)) {
+    if ((sampleIndex < 0) || (sampleIndex >= (s32)MAX_SAMPLE_COUNT)) {
         return;
     }
     SampleData *sampleData = &mSampleData[sampleIndex];

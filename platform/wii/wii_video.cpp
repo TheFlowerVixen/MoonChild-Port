@@ -69,7 +69,7 @@ void CVideo::doInit(void) {
 	mFrameBuffer[0] = MEM_K0_TO_K1(SYS_AllocateFramebuffer(mVideoMode));
     mFrameBuffer[1] = MEM_K0_TO_K1(SYS_AllocateFramebuffer(mVideoMode));
 
-    mFifoMem = memalign(32, FIFO_MEM_SIZE);
+    mFifoMem = aligned_alloc(32, FIFO_MEM_SIZE);
 	memset(mFifoMem, 0x00, FIFO_MEM_SIZE);
 
     GX_Init(mFifoMem, FIFO_MEM_SIZE);
@@ -139,17 +139,17 @@ void CVideo::setupMoonChild(void) {
     pixelBufferPitch = GAME_WIDTH * BYTES_PER_PIXEL;
 
     u32 pixelBufferSize = (pixelBufferPitch * GAME_HEIGHT);
-    pixelBuffer = (u8 *)memalign(32, pixelBufferSize);
+    pixelBuffer = (u8 *)aligned_alloc(32, pixelBufferSize);
     memset(pixelBuffer, 0x00, pixelBufferSize);
 
     u32 sizeofIndirectTexMem = ((GAME_WIDTH + 3) / 4) * ((GAME_HEIGHT + 3) / 4) * 32 * 2;
-    mMCIndirectTexMem = memalign(32, sizeofIndirectTexMem);
+    mMCIndirectTexMem = aligned_alloc(32, sizeofIndirectTexMem);
 
     GX_InitTexObj(&mMCIndirectTexObj, mMCIndirectTexMem, GAME_WIDTH, GAME_HEIGHT, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
     GX_InitTexObjFilterMode(&mMCIndirectTexObj, GX_LINEAR, GX_LINEAR);
 
-    printf("pixelBuffer=0x%x\n", pixelBuffer);
-    printf("mMCIndirectTexMem=0x%x\n", mMCIndirectTexMem);
+    printf("pixelBuffer=%p\n", pixelBuffer);
+    printf("mMCIndirectTexMem=%p\n", mMCIndirectTexMem);
 }
 
 void CVideo::syncMoonChild(void) {

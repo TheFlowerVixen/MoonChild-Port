@@ -98,6 +98,7 @@ int	  FirstTimeShowCredzFlg;
 #include <stdlib.h>
 //#include <fstream.h>
 #include "../framewrk/frm_wrk.hpp"
+#include "../framewrk/macro.h"
 //#include <conio.h>
 #include <math.h>
 #include "mc.hpp"
@@ -5040,7 +5041,12 @@ void prep_engine(void)
   
 // LOAD MAPDATA AND DRAW LEVEL
 
-  rc = loadfile(levels[world][level].map, (char *) player1.loadedmap->map, player1.loadedmap->mapsizex*player1.loadedmap->mapsizey/(32*32) *sizeof(UINT16));
+  UINT32 blockCount = player1.loadedmap->mapsizex*player1.loadedmap->mapsizey/(32*32);
+  rc = loadfile(levels[world][level].map, (char *) player1.loadedmap->map, blockCount*sizeof(UINT16));
+  for (UINT32 i = 0; i < blockCount; i++) {
+    player1.loadedmap->map[i] = BE_BSWAP_16(player1.loadedmap->map[i]);
+  }
+
   rc = loadfile(levels[world][level].colmap,(char *)colmap, player1.loadedmap->mapsizex*(player1.loadedmap->mapsizey+32)/(16*16) * sizeof(unsigned char));
   player1.curmap = player1.loadedmap;
   player2.curmap = player2.loadedmap;

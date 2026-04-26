@@ -19,10 +19,12 @@
 
 #endif // defined(PLATFORM_N64) || defined(PLATFORM_WII)
 
-#define FRMWORK_ASSERT(condition) do { \
-    if (!(condition)) { printf("[FRMWORK_ASSERT] Assertion failed: " #condition "\n"); for (;;); } \
+#define CMN_ASSERT(condition) do {                                                              \
+    if (!(condition)) { printf("[CMN_ASSERT] Assertion failed: " #condition "\n"); for (;;); }  \
 } while (0)
 
-#define log(x) fprintf(stderr, "debug: %s\r\n", x);
+#define CMN_DEBUG_LOG(...) do { \
+    printf(__VA_ARGS__); \
+} while (0)
 
 #endif // MACRO_H

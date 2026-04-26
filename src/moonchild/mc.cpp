@@ -98,7 +98,6 @@ int	  FirstTimeShowCredzFlg;
 #include <stdlib.h>
 //#include <fstream.h>
 #include "../framewrk/frm_wrk.hpp"
-#include "../framewrk/macro.h"
 //#include <conio.h>
 #include <math.h>
 #include "mc.hpp"
@@ -120,6 +119,7 @@ int	  FirstTimeShowCredzFlg;
 #include "sokoban.hpp"
 #include "glim.hpp"
 #include <time.h>
+#include "macro.h"
 
 
 #define PARA
@@ -5043,9 +5043,11 @@ void prep_engine(void)
 
   UINT32 blockCount = player1.loadedmap->mapsizex*player1.loadedmap->mapsizey/(32*32);
   rc = loadfile(levels[world][level].map, (char *) player1.loadedmap->map, blockCount*sizeof(UINT16));
+#ifdef BIGENDIAN
   for (UINT32 i = 0; i < blockCount; i++) {
     player1.loadedmap->map[i] = BE_BSWAP_16(player1.loadedmap->map[i]);
   }
+#endif // BIGENDIAN
 
   rc = loadfile(levels[world][level].colmap,(char *)colmap, player1.loadedmap->mapsizex*(player1.loadedmap->mapsizey+32)/(16*16) * sizeof(unsigned char));
   player1.curmap = player1.loadedmap;

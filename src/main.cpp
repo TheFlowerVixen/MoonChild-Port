@@ -96,14 +96,15 @@ int main(int argc, char **argv)
 {
 	if (!initSystem())
 	{
-		log("system failed to init");
+		CMN_DEBUG_LOG("[main] initSystem failure");
 		shutdownSystem();
 		return 1;
 	}
 
 	if (!initVideo())
 	{
-		log("video failed to init");
+		CMN_DEBUG_LOG("[main] initVideo failure");
+		CMN_DEBUG_LOG("video failed to init");
 		shutdownVideo();
 		shutdownSystem();
 		return 1;
@@ -111,7 +112,7 @@ int main(int argc, char **argv)
 
 	if (!initAudio())
 	{
-		log("audio failed to init");
+		CMN_DEBUG_LOG("[main] initAudio failure");
 		shutdownAudio();
 		shutdownVideo();
 		shutdownSystem();

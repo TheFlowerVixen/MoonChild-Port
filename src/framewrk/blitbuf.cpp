@@ -1,6 +1,6 @@
 #include "frm_int.hpp"
 
-#include "macro.h"
+#include "../macro.h"
 
 
 extern char *FullPath2( char *a_File );
@@ -34,7 +34,7 @@ Cblitbuf::Cblitbuf(UINT16 w, UINT16 h, UINT16 top_margin, UINT16 bottom_margin)
   pitch = 0;
 
   m_Buffer = (char *)malloc(w*h);
-  FRMWORK_ASSERT(m_Buffer != NULL);
+  CMN_ASSERT(m_Buffer != NULL);
 
 //  log_out("Construction succesful!");
 }
@@ -45,7 +45,7 @@ Cblitbuf::Cblitbuf(UINT16 w, UINT16 h, UINT16 top_margin, UINT16 bottom_margin, 
 //    w, h, top_margin, bottom_margin);
 
   m_Buffer = (char *)malloc(w*h);
-  FRMWORK_ASSERT(m_Buffer != NULL);
+  CMN_ASSERT(m_Buffer != NULL);
 
   videoblitbuf = VG_FALSE;
   width = w;
@@ -74,7 +74,7 @@ Cblitbuf::Cblitbuf(Cvideo *video)
   pitch = 0;
 
   m_Buffer = (char *)video->lock_bbuffer();
-  FRMWORK_ASSERT(m_Buffer != NULL);
+  CMN_ASSERT(m_Buffer != NULL);
   video->unlock_bbuffer();
 
 //  log_out("Construction succesful!");
@@ -111,7 +111,7 @@ Cblitbuf::Cblitbuf(char *pcx_filename, UINT16 top_margin, UINT16 bottom_margin, 
   LOG(logbuffer);
 
   m_Buffer = (char *)malloc(w*h);
-  FRMWORK_ASSERT(m_Buffer != NULL);
+  CMN_ASSERT(m_Buffer != NULL);
 
   LOG("malloc\n");
 

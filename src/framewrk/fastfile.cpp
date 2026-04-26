@@ -21,7 +21,7 @@
 #include "fastfile.h"
 #include "mydefs.hpp"
 
-#include "macro.h"
+#include "../macro.h"
 
 // strip the directory path of all files provided to open
 #define USEBASENAME 1

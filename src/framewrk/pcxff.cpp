@@ -9,7 +9,7 @@
 #if 1   // we gebruiken ff de gzip versie
 #include "frm_int.hpp"
 
-#include "macro.h"
+#include "../macro.h"
 
 VG_BOOLEAN PCX_ff_save(char *fname, BYTE *buffer, UINT16 width, UINT16 height, BYTE *palette)
 {

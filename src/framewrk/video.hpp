@@ -9,7 +9,7 @@ struct MGLDC {
     BYTE *surface;
 };
 
-#pragma warning (disable : 4099)
+// #pragma warning (disable : 4099)
 class Cblitbuf;
 
 class Cvideo {

@@ -3,7 +3,7 @@
 
 /* #include "compile.hpp" */
 
-struct Cblitbuf;
+class Cblitbuf;
 
 #define NOKEY  (0)
 #define USEKEY (1)

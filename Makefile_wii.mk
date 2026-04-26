@@ -25,7 +25,7 @@ INCLUDES	:=  platform src
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS	= -g -O3 -Wall $(MACHDEP) $(INCLUDE) -DPLATFORM_WII
+CFLAGS	= -g -O3 -Wall -fno-strict-aliasing $(MACHDEP) $(INCLUDE) -DPLATFORM_WII
 CXXFLAGS	=	$(CFLAGS)
 
 LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map

@@ -208,6 +208,10 @@ s16 *WavGetPCM16(void *wavData) {
     if (sampleFormat == WAV_FORMAT_FLOAT) {
         const u32 *srcI = (const u32 *)dataChunk->data;
         for (u32 i = 0; i < sampleCount; i++) {
+            /*
+             * NOTE: -fno-strict-aliasing must be set to guarantee that this
+             * will actually work.
+             */
             u32 sampleI = BE_BSWAP_32(srcI[i]);
             float sample = *(float *)&sampleI * 32768.f;
 

@@ -12,7 +12,7 @@
 #include "moonchild/globals.hpp"
 #include "moonchild/prefs.hpp"
 
-MoviePlayer* moviePlayer;
+MoviePlayer *moviePlayer;
 
 class CSystem {
 public:
@@ -97,9 +97,7 @@ void CSystem::doShutdown(void) {
 	WPAD_Shutdown();
 
 	if (mShutdownFlag) {
-		mShutdownFlag = false;
 		SYS_ResetSystem(SYS_POWEROFF, 0, 0);
-
 		for (;;);
 	}
 }
@@ -117,6 +115,7 @@ bool CSystem::doCalc(void) {
 
 	updateMoonChild();
 
+	// Main loop must be exited when shutdown or reset is due.
 	return (mShutdownFlag || mResetFlag);
 }
 

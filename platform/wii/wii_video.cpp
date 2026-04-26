@@ -139,7 +139,7 @@ void CVideo::setupMoonChild(void) {
     pixelBufferPitch = GAME_WIDTH * BYTES_PER_PIXEL;
 
     u32 pixelBufferSize = (pixelBufferPitch * GAME_HEIGHT);
-    pixelBuffer = new u8[pixelBufferSize];
+    pixelBuffer = (u8 *)memalign(32, pixelBufferSize);
     memset(pixelBuffer, 0x00, pixelBufferSize);
 
     u32 sizeofIndirectTexMem = ((GAME_WIDTH + 3) / 4) * ((GAME_HEIGHT + 3) / 4) * 32 * 2;

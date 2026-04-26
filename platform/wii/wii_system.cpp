@@ -13,130 +13,153 @@
 #include "moonchild/prefs.hpp"
 
 MoviePlayer* moviePlayer;
+class CSystem {
+public:
+	CSystem() {}
 
-extern s32 __STM_Init();
-extern void __exception_closeall();
-extern s32 __IOS_ShutdownSubsystems();
+	void doInit(void);
+	void doShutdown(void);
 
-#define log(x) fprintf(stderr, "debug: %s\r\n", x);
+	bool doCalc(void);
 
-bool initSystem()
-{
-	__STM_Init();
-	SYS_STDIO_Report(true);
+private:
+	void setupMoonChild(void);
+    void updateMoonChild(void);
 
-	if (!fatInitDefault())
-	{
-		log("FAT failed to initialize");
-		return false;
+	void moonChildSubmitKey(u32 button, s32 key) {
+		if ((mButtonsDown & button) == button) {
+			framework_EventHandle(FW_KEYDOWN, key);
+		}
+		else if ((mButtonsUp & button) == button) {
+			framework_EventHandle(FW_KEYUP, key);
+		}
 	}
 
-	moviePlayer = new MoviePlayer();
+private:
+	u32 mButtonsDown;
+	u32 mButtonsUp;
+	u32 mButtonsHeld;
+};
+static CSystem sSystem;
 
-	return true;
+void CSystem::doInit(void) {
+	SYS_STDIO_Report(true);
+
+	fatInitDefault();
+
+	WPAD_Init();
+    WPAD_SetDataFormat(0, WPAD_FMT_BTNS_ACC_IR);
+
+	setupMoonChild();
 }
 
-void shutdownSystem()
-{
-
+void CSystem::doShutdown(void) {
+	WPAD_Shutdown();
 }
 
-bool pollEvents()
-{
+bool CSystem::doCalc(void) {
 	WPAD_ScanPads();
 
-	u32 buttonsDown = WPAD_ButtonsDown(0);
-	u32 buttonsUp = WPAD_ButtonsUp(0);
+	mButtonsDown = WPAD_ButtonsDown(0);
+    mButtonsUp = WPAD_ButtonsUp(0);
+    mButtonsHeld = WPAD_ButtonsHeld(0);
 
-	if (buttonsDown & WPAD_BUTTON_HOME)
+	if ((mButtonsDown & WPAD_BUTTON_HOME) != 0) {
 		return true;
+	}
 
-	if (buttonsDown & WPAD_BUTTON_RIGHT)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->upkey);
-    if (buttonsUp & WPAD_BUTTON_RIGHT)
-        framework_EventHandle(FW_KEYUP, (int)prefs->upkey);
-    
-    if (buttonsDown & WPAD_BUTTON_LEFT)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->downkey);
-    if (buttonsUp & WPAD_BUTTON_LEFT)
-        framework_EventHandle(FW_KEYUP, (int)prefs->downkey);
-    
-    if (buttonsDown & WPAD_BUTTON_DOWN)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->leftkey);
-    if (buttonsUp & WPAD_BUTTON_DOWN)
-        framework_EventHandle(FW_KEYUP, (int)prefs->leftkey);
-    
-    if (buttonsDown & WPAD_BUTTON_UP)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->rightkey);
-    if (buttonsUp & WPAD_BUTTON_UP)
-        framework_EventHandle(FW_KEYUP, (int)prefs->rightkey);
+	updateMoonChild();
 
-    if (buttonsDown & WPAD_BUTTON_2)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->shootkey);
-    if (buttonsUp & WPAD_BUTTON_2)
-        framework_EventHandle(FW_KEYUP, (int)prefs->shootkey);
-	
 	return false;
 }
 
-void syncMouse()
-{
-
+void CSystem::setupMoonChild(void) {
+	moviePlayer = new MoviePlayer();
 }
 
-void preSync()
-{
+void CSystem::updateMoonChild(void) {
+	moonChildSubmitKey(WPAD_BUTTON_LEFT, prefs->downkey);
+	moonChildSubmitKey(WPAD_BUTTON_RIGHT, prefs->upkey);
 
+	moonChildSubmitKey(WPAD_BUTTON_DOWN, prefs->rightkey);
+	moonChildSubmitKey(WPAD_BUTTON_UP, prefs->leftkey);
+
+	moonChildSubmitKey(WPAD_BUTTON_2, prefs->shootkey);
 }
 
-void postSync()
-{
+/*
+ * Public interface
+ */
 
+bool initSystem() {
+	sSystem.doInit();
+	return true;
 }
+void shutdownSystem() {
+	sSystem.doShutdown();
+}
+
+bool pollEvents() {
+	return sSystem.doCalc();
+}
+
+// (stub)
+void syncMouse() {}
+
+// (stub)
+void preSync() {}
+
+// (stub)
+void postSync() {}
 
 // Called by the game to get the full path to a file
-char *FullPath(char *filename)
-{
-	static char buffer[4096];
-	if (!filename)
-		return nullptr;
+char *FullPath(char *filename) {
+	if (filename == NULL) {
+		return NULL;
+	}
+
+	static char buffer[128];
 	snprintf(buffer, sizeof(buffer), "/moonchild_assets/moonchild/%s", filename);
 	return buffer;
 }
 
 // Called by the game to get the full path to an audio file
-char *FullAudioPath(char *filename)
-{
-	static char buffer[4096];
-	if (!filename)
-		return nullptr;
+char *FullAudioPath(char *filename) {
+	if (filename == NULL) {
+		return NULL;
+	}
+
+	static char buffer[128];
 	snprintf(buffer, sizeof(buffer), "/moonchild_assets/audio/%s", filename);
 	return buffer;
 }
 
-char *FullMoviePath(char *filename)
-{
-	static char buffer[4096];
-	if (!filename)
-		return nullptr;
+char *FullMoviePath(char *filename) {
+	if (filename == NULL) {
+		return NULL;
+	}
+
+	static char buffer[128];
 	snprintf(buffer, sizeof(buffer), "/moonchild_assets/movies/%s", filename);
 	return buffer;
 }
 
 // Called by the game to get the full path to a writable file (Only hiscore file)
-char *FullWritablePath(char *filename)
-{
-	static char buffer[4096];
-	if (!filename)
-		return nullptr;
+char *FullWritablePath(char *filename) {
+	if (filename == NULL) {
+		return NULL;
+	}
+
+	static char buffer[128];
 	snprintf(buffer, sizeof(buffer), "/moonchild_save/%s", filename);
 	return buffer;
 }
 
+#if 0
+
 // Internal method (only used here) to load a TGA file
 typedef unsigned char BYTE;
-unsigned short*LoadTGA(char *FileName)
-{
+unsigned short* LoadTGA(char *FileName) {
 	char logbuf[100];
 	snprintf(logbuf, sizeof(logbuf), "loading: %s\n", FileName);
 //	LOG(logbuf);
@@ -260,14 +283,18 @@ unsigned short*LoadTGA(char *FileName)
 	return dest;
 }
 
+#endif
+
 // Called by the game to show a picture (tga)
 void ShowPicture(char *FileName)
 {
+#if 0
   unsigned short *TempPic;
 	TempPic   = LoadTGA(FileName);
     
 	//video->DrawTempPic();
     
 	delete [] TempPic;
+#endif
 }
 

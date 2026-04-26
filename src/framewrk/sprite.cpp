@@ -1,5 +1,6 @@
 #include "frm_int.hpp"
 #include <stdlib.h>
+#include "../macro.h"
 Cspr_frame::Cspr_frame(COMP_SPRITE *dc, UINT16 w, UINT16 h, INT16 hx, INT16 hy)
 {
 }
@@ -325,10 +326,17 @@ UINT16 frmwrk_fastblit(Cblitbuf *src, Cblitbuf &dest, int x1, int y1, int x2, in
 					{
 						unsigned int temp;
 						temp = 0;
-						temp =  (*Src++);
+#ifdef BIGENDIAN
+						temp |= ((int)(*Src++)) << 24;
+						temp |= ((int)(*Src++)) << 16;
+						temp |= ((int)(*Src++)) << 8;
+						temp |= (*Src++);
+#else
+						temp |= (*Src++);
 						temp |= ((int)(*Src++)) << 8;
 						temp |= ((int)(*Src++)) << 16;
 						temp |= ((int)(*Src++)) << 24;
+#endif
 						*(((unsigned int *)Dest)) = temp;
 						Dest+=4;
 						a+=4;

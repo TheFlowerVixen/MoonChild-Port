@@ -23,6 +23,13 @@ public:
 
 	bool doCalc(void);
 
+	bool getShutdownFlag(void) const {
+		return mShutdownFlag;
+	}
+	bool getResetFlag(void) const {
+		return mResetFlag;
+	}
+
 private:
 	void setupMoonChild(void);
     void updateMoonChild(void);
@@ -36,10 +43,17 @@ private:
 		}
 	}
 
+	static void sysPowerCallback(void);
+	static void sysResetCallback(u32 irq, void *ctx);
+	static void wpadPowerCallback(s32 chan);
+
 private:
 	u32 mButtonsDown;
 	u32 mButtonsUp;
 	u32 mButtonsHeld;
+
+	bool mShutdownFlag;
+	bool mResetFlag;
 };
 static CSystem sSystem;
 
@@ -47,7 +61,21 @@ static CSystem sSystem;
  * Implementation
  */
 
+void CSystem::sysPowerCallback(void) {
+	sSystem.mShutdownFlag = true;
+}
+
+void CSystem::sysResetCallback(u32 irq, void *ctx) {
+	sSystem.mResetFlag = true;
+}
+
+void CSystem::wpadPowerCallback(s32 chan) {
+	sSystem.mResetFlag = true;
+}
+
 void CSystem::doInit(void) {
+	L2Enhance();
+
 	SYS_STDIO_Report(true);
 
 	fatInitDefault();
@@ -55,11 +83,25 @@ void CSystem::doInit(void) {
 	WPAD_Init();
     WPAD_SetDataFormat(0, WPAD_FMT_BTNS_ACC_IR);
 
+	mShutdownFlag = false;
+	mResetFlag = false;
+
+	SYS_SetResetCallback(sysResetCallback);
+    SYS_SetPowerCallback(sysPowerCallback);
+	WPAD_SetPowerButtonCallback(wpadPowerCallback);
+
 	setupMoonChild();
 }
 
 void CSystem::doShutdown(void) {
 	WPAD_Shutdown();
+
+	if (mShutdownFlag) {
+		mShutdownFlag = false;
+		SYS_ResetSystem(SYS_POWEROFF, 0, 0);
+
+		for (;;);
+	}
 }
 
 bool CSystem::doCalc(void) {
@@ -75,7 +117,7 @@ bool CSystem::doCalc(void) {
 
 	updateMoonChild();
 
-	return false;
+	return (mShutdownFlag || mResetFlag);
 }
 
 void CSystem::setupMoonChild(void) {
@@ -90,6 +132,7 @@ void CSystem::updateMoonChild(void) {
 	moonChildSubmitKey(WPAD_BUTTON_UP, prefs->leftkey);
 
 	moonChildSubmitKey(WPAD_BUTTON_2, prefs->shootkey);
+
 	moonChildSubmitKey(WPAD_BUTTON_PLUS, 'Q');
 }
 

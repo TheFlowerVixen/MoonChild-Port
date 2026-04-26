@@ -268,6 +268,10 @@ void CAudio::freeSample(s32 sampleIndex) {
     }
     SampleData *sampleData = &mSampleData[sampleIndex];
 
+    if (sampleData->playbackState != SampleData::PLAYBACK_STOPPED) {
+        sampleData->stopPlayback();
+    }
+
     sampleData->inUse = false;
     free(sampleData->sampleData);
 }

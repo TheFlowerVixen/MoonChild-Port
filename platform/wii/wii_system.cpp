@@ -31,6 +31,8 @@ bool initSystem()
 		return false;
 	}
 
+	moviePlayer = new MoviePlayer();
+
 	return true;
 }
 

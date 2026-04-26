@@ -9,12 +9,12 @@
 #if 1   // we gebruiken ff de gzip versie
 #include "frm_int.hpp"
 
+#include "macro.h"
 
 VG_BOOLEAN PCX_ff_save(char *fname, BYTE *buffer, UINT16 width, UINT16 height, BYTE *palette)
 {
 	return VG_TRUE;
 }
-
 
 VG_BOOLEAN PCX_ff_stat(char *fname, UINT16 *width, UINT16 *height)
 {
@@ -34,7 +34,9 @@ VG_BOOLEAN PCX_ff_stat(char *fname, UINT16 *width, UINT16 *height)
   rc = FastFileSeek(fp, 8, SEEK_SET);
   rc = FastFileRead(fp, width, 2);
   rc = FastFileRead(fp, height, 2);
-  
+
+  *width = BE_BSWAP_16(*width);
+  *height = BE_BSWAP_16(*height);
 
   *width += 1;  // PCX counts to width-1 and height-1
   *height += 1;
@@ -81,6 +83,9 @@ VG_BOOLEAN PCX_ff_load(char *fname, BYTE *buffer, BYTE *palette)
 	rc = FastFileRead(fp, &ysize, 2);
 //	vgassert(rc);
 	
+	xsize = BE_BSWAP_16(xsize);
+  	ysize = BE_BSWAP_16(ysize);
+
 	xsize += 1;
 	ysize += 1;
 	

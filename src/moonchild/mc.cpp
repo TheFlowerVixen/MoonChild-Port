@@ -6314,18 +6314,10 @@ HEARTBEAT_FN MC_preptitlesequence(void)
 
   if(FirstTimeShowCredzFlg==0)
   {
-	  prevplace = 0;
-//	  starttime = PHAL::GetClock();
-      starttime = clock();
 	  FirstTimeShowCredzFlg=1;
-	  ShowPicture("screen1.tga");
+  }
 
-	  return (HEARTBEAT_FN) MC_showScreen2;    // show the makers of this game NEW!!  
-  }
-  else
-  {
-	  return (HEARTBEAT_FN) MC_showtitlesequence1;    // no highscore crap  
-  }
+	return (HEARTBEAT_FN) MC_showtitlesequence1;    // no highscore crap  
 }
 
 

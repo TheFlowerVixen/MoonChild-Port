@@ -3,6 +3,7 @@
 #include <ogcsys.h>
 #include <fat.h>
 #include <wiiuse/wpad.h>
+#include <gccore.h>
 #include <cstdio>
 #include <unistd.h>
 #include <dirent.h>
@@ -11,6 +12,8 @@
 #include "moonchild/mc.hpp"
 #include "moonchild/globals.hpp"
 #include "moonchild/prefs.hpp"
+
+#define STICK_DEADZONE 32
 
 MoviePlayer *moviePlayer;
 
@@ -34,12 +37,41 @@ private:
 	void setupMoonChild(void);
     void updateMoonChild(void);
 
-	void moonChildSubmitKey(u32 button, s32 key) {
-		if ((mButtonsDown & button) == button) {
+	void moonChildSubmitKey(u32 gcButton, u32 wiiButton, s32 key) {
+		if ((mWiiButtonsDown & wiiButton) == wiiButton) {
 			framework_EventHandle(FW_KEYDOWN, key);
 		}
-		else if ((mButtonsUp & button) == button) {
+		else if ((mWiiButtonsUp & wiiButton) == wiiButton) {
 			framework_EventHandle(FW_KEYUP, key);
+		}
+		if ((mGCButtonsDown & gcButton) == gcButton) {
+			framework_EventHandle(FW_KEYDOWN, key);
+		}
+		else if ((mGCButtonsUp & gcButton) == gcButton) {
+			framework_EventHandle(FW_KEYUP, key);
+		}
+	}
+
+	void moonChildCalcGCAxis(s8 axis, u32 negativeButton, u32 positiveButton, s32 negativeKey, s32 positiveKey) {
+		// This could definitely be done a little better :P
+		if (axis <= -STICK_DEADZONE || axis >= STICK_DEADZONE) {
+			if (axis <= -STICK_DEADZONE && !(mGCAxisFlags & negativeButton)) {
+				framework_EventHandle(FW_KEYDOWN, negativeKey);
+				mGCAxisFlags |= negativeButton;
+			}
+			if (axis >= STICK_DEADZONE && !(mGCAxisFlags & positiveButton)) {
+				framework_EventHandle(FW_KEYDOWN, positiveKey);
+				mGCAxisFlags |= positiveButton;
+			}
+		}
+		else {
+			if ((mGCAxisFlags & negativeButton) == negativeButton) {
+				framework_EventHandle(FW_KEYUP, negativeKey);
+			}
+			else if ((mGCAxisFlags & positiveButton) == positiveButton) {
+				framework_EventHandle(FW_KEYUP, positiveKey);
+			}
+			mGCAxisFlags &= ~(negativeButton | positiveButton);
 		}
 	}
 
@@ -48,9 +80,15 @@ private:
 	static void wpadPowerCallback(s32 chan);
 
 private:
-	u32 mButtonsDown;
-	u32 mButtonsUp;
-	u32 mButtonsHeld;
+	u32 mWiiButtonsDown;
+	u32 mWiiButtonsUp;
+	u32 mWiiButtonsHeld;
+	u32 mGCButtonsDown;
+	u32 mGCButtonsUp;
+	u32 mGCButtonsHeld;
+	s8 mGCAxisX;
+	s8 mGCAxisY;
+	u32 mGCAxisFlags;
 
 	bool mShutdownFlag;
 	bool mResetFlag;
@@ -80,6 +118,8 @@ void CSystem::doInit(void) {
 
 	fatInitDefault();
 
+	PAD_Init();
+
 	WPAD_Init();
     WPAD_SetDataFormat(0, WPAD_FMT_BTNS_ACC_IR);
 
@@ -103,13 +143,21 @@ void CSystem::doShutdown(void) {
 }
 
 bool CSystem::doCalc(void) {
+	PAD_ScanPads();
+
+	mGCButtonsDown = PAD_ButtonsDown(0);
+	mGCButtonsUp = PAD_ButtonsUp(0);
+	mGCButtonsHeld = PAD_ButtonsHeld(0);
+	mGCAxisX = PAD_StickX(0);
+	mGCAxisY = PAD_StickY(0);
+
 	WPAD_ScanPads();
 
-	mButtonsDown = WPAD_ButtonsDown(0);
-    mButtonsUp = WPAD_ButtonsUp(0);
-    mButtonsHeld = WPAD_ButtonsHeld(0);
+	mWiiButtonsDown = WPAD_ButtonsDown(0);
+    mWiiButtonsUp = WPAD_ButtonsUp(0);
+    mWiiButtonsHeld = WPAD_ButtonsHeld(0);
 
-	if ((mButtonsDown & WPAD_BUTTON_HOME) != 0) {
+	if ((mWiiButtonsDown & WPAD_BUTTON_HOME) != 0) {
 		return true;
 	}
 
@@ -124,15 +172,18 @@ void CSystem::setupMoonChild(void) {
 }
 
 void CSystem::updateMoonChild(void) {
-	moonChildSubmitKey(WPAD_BUTTON_LEFT, prefs->downkey);
-	moonChildSubmitKey(WPAD_BUTTON_RIGHT, prefs->upkey);
+	moonChildCalcGCAxis(mGCAxisX, PAD_BUTTON_LEFT, PAD_BUTTON_RIGHT, prefs->leftkey, prefs->rightkey);
+	moonChildCalcGCAxis(mGCAxisY, PAD_BUTTON_DOWN, PAD_BUTTON_UP, prefs->downkey, prefs->upkey);
 
-	moonChildSubmitKey(WPAD_BUTTON_DOWN, prefs->rightkey);
-	moonChildSubmitKey(WPAD_BUTTON_UP, prefs->leftkey);
+	moonChildSubmitKey(PAD_BUTTON_DOWN, WPAD_BUTTON_LEFT, prefs->downkey);
+	moonChildSubmitKey(PAD_BUTTON_UP, WPAD_BUTTON_RIGHT, prefs->upkey);
 
-	moonChildSubmitKey(WPAD_BUTTON_2, prefs->shootkey);
+	moonChildSubmitKey(PAD_BUTTON_RIGHT, WPAD_BUTTON_DOWN, prefs->rightkey);
+	moonChildSubmitKey(PAD_BUTTON_LEFT, WPAD_BUTTON_UP, prefs->leftkey);
 
-	moonChildSubmitKey(WPAD_BUTTON_PLUS, 'Q');
+	moonChildSubmitKey(PAD_BUTTON_A, WPAD_BUTTON_2, prefs->shootkey);
+
+	moonChildSubmitKey(PAD_BUTTON_START, WPAD_BUTTON_PLUS, 'Q');
 }
 
 /*

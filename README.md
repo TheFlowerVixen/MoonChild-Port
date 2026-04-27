@@ -2,7 +2,7 @@
 
 Miscellaneous ports of Moon Child to different targets with a modular platform system.
 
-Currently the only (mostly) working target is SDL (exception being 20-ish second pause before the title screen); N64 (libdragon) and Wii (devkitPro) are unfinished and will not work correctly/work at all.
+The N64 target is currently unfinished and may not work correctly/work at all.
 
 Original repository + README: [Bitbucket link](https://bitbucket.org/rhinoid/moonchild/src/main/)
 

@@ -915,7 +915,6 @@ void load_highscores(void)
 
 void save_options(void)
 {
-
   optsavebuf[0] = vgaflg;
   optsavebuf[1] = animsflg;
   optsavebuf[2] = musicflg;
@@ -933,6 +932,14 @@ void save_options(void)
 
 void load_options(void)
 {
+  prefs->upkey = VK_UP;
+  prefs->downkey = VK_DOWN;
+  prefs->leftkey = VK_LEFT;
+  prefs->rightkey = VK_RIGHT;
+  prefs->jumpkey = VK_SPACE;
+  prefs->usekey = VK_CONTROL;
+  prefs->shootkey = VK_RETURN;
+
   UINT16 rc;
   rc = loadfile("mc_opts.dat", (char *) optsavebuf, 18);
 
@@ -4813,9 +4820,9 @@ void recorder(void)
     
       if(recbyte & 1)  leftkey  = 1;
       if(recbyte & 2)  rightkey = 1;
-      if(recbyte & 4)  upkey    = 1;
+      if(recbyte & 4)  jumpkey  = 1;
       if(recbyte & 8)  downkey  = 1;
-      if(recbyte & 16) shootkey = 1;      
+      if(recbyte & 16) usekey   = 1;      
     }
     else
     {
@@ -4824,9 +4831,9 @@ void recorder(void)
       recbyte = 0;
       if(leftkey)  recbyte |= 1;
       if(rightkey) recbyte |= 2;
-      if(upkey)    recbyte |= 4;
+      if(jumpkey)  recbyte |= 4;
       if(downkey)  recbyte |= 8;
-      if(shootkey) recbyte |= 16;
+      if(usekey)   recbyte |= 16;
     
       *(recpnt++) = recbyte;
     }
@@ -4844,6 +4851,8 @@ void peekabooh(void)
       rightkey = 0;
       upkey    = 0;
       downkey  = 0;
+      jumpkey  = 0;
+      usekey   = 0;
       shootkey = 0;
 
       hoiblood = (HOI_BLOOD *) hoi->blood;
@@ -5449,6 +5458,8 @@ void glob_game_init(void)
   rightkey = 0;
   upkey = 0;
   downkey = 0;
+  jumpkey = 0;
+  usekey = 0;
   shootkey = 0;
   intensity = 0;
   exitflg = 0;
@@ -5799,6 +5810,8 @@ void handleinput1shot(void)
   rightkey = 0;
   upkey    = 0;
   downkey  = 0;
+  jumpkey  = 0;
+  usekey   = 0;
   shootkey = 0;
 
 
@@ -5825,9 +5838,18 @@ void handleinput1shot(void)
       keytab[VK_DOWN] = 0;
       downkey  = 1;
     }
-    if (keytab[' '] || keytab[VK_RETURN])
+    if (keytab[VK_SPACE])
     {
-      keytab[' '] = 0;
+      keytab[VK_SPACE] = 0;
+      jumpkey = 1;
+    }
+    if (keytab[VK_CONTROL])
+    {
+      keytab[VK_CONTROL] = 0;
+      usekey = 1;
+    }
+    if (keytab[VK_RETURN])
+    {
       keytab[VK_RETURN] = 0;
       shootkey = 1;
     }
@@ -5854,6 +5876,16 @@ void handleinput1shot(void)
       keytab[prefs->downkey] = 0;
       downkey  = 1;
     }
+    if (keytab[prefs->jumpkey])
+    {
+      keytab[prefs->jumpkey] = 0;
+      jumpkey = 1;
+    }
+    if (keytab[prefs->usekey])
+    {
+      keytab[prefs->usekey] = 0;
+      usekey = 1;
+    }
     if (keytab[prefs->shootkey])
     {
       keytab[prefs->shootkey] = 0;
@@ -5873,6 +5905,8 @@ void handleinputloop(void)
   rightkey = 0;
   upkey    = 0;
   downkey  = 0;
+  jumpkey  = 0;
+  usekey   = 0;
   shootkey = 0;
 
   if (keytab[prefs->leftkey])
@@ -5890,6 +5924,14 @@ void handleinputloop(void)
   if (keytab[prefs->downkey])
     {
       downkey  = 1;
+    }
+  if (keytab[prefs->jumpkey])
+    {
+      jumpkey = 1;
+    }
+  if (keytab[prefs->usekey])
+    {
+      usekey = 1;
     }
   if (keytab[prefs->shootkey])
     {

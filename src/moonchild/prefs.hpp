@@ -21,6 +21,8 @@ struct PREFS
   UINT16 rightkey;
   UINT16 upkey;
   UINT16 downkey;
+  UINT16 jumpkey;
+  UINT16 usekey;
   UINT16 shootkey;
 };
 

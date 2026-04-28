@@ -409,8 +409,12 @@ void keyDown(int key) {
     case SDL_SCANCODE_RIGHT:  // move right
       framework_EventHandle(FW_KEYDOWN,(int) prefs->rightkey);
       break;
+	case SDL_SCANCODE_LCTRL:
+	  framework_EventHandle(FW_KEYDOWN,(int) prefs->usekey);
+	  break;
     case SDL_SCANCODE_SPACE:   // fire or switch
       framework_EventHandle(FW_KEYDOWN,(int) prefs->shootkey);
+	  framework_EventHandle(FW_KEYDOWN,(int) prefs->jumpkey);
       break;
     case SDL_SCANCODE_ESCAPE:  // break out of level
       framework_EventHandle(FW_KEYDOWN,(int) 'Q');
@@ -440,8 +444,12 @@ void keyUp(int key) {
     case SDL_SCANCODE_RIGHT:  // move right
       framework_EventHandle(FW_KEYUP,(int) prefs->rightkey);
       break;
+	case SDL_SCANCODE_LCTRL:
+	  framework_EventHandle(FW_KEYUP,(int) prefs->usekey);
+	  break;
     case SDL_SCANCODE_SPACE:   // fire or switch
       framework_EventHandle(FW_KEYUP,(int) prefs->shootkey);
+	  framework_EventHandle(FW_KEYUP,(int) prefs->jumpkey);
       break;
     case SDL_SCANCODE_ESCAPE:  // break out of level
       framework_EventHandle(FW_KEYUP,(int) 'Q');

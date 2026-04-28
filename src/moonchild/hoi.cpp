@@ -178,6 +178,8 @@ OBJECT *hoi_globinit(ANIM *appearance, HOI_CAPS* capabilities, HOI_AI intelligen
   hoiblood->rightkey=0; /* if set we want to move right */
   hoiblood->upkey=0;    /* if set we want to move up */
   hoiblood->downkey=0;  /* if set we want to move down */
+  hoiblood->jumpkey=0;  /* if set we want to jump */
+  hoiblood->usekey=0;  /* if set we want to use */
   hoiblood->shootkey=0; /* if set we want to shoot */
   hoiblood->flashcnt=0; /* invincibility */
   hoiblood->xfloat = 0;   /* x-pos 256 times too big.*/
@@ -229,6 +231,8 @@ void hoi_init(OBJECT *newhoi, UINT16 x, UINT16 y)
   hoiblood->rightkey = 0;
   hoiblood->upkey = 0;
   hoiblood->downkey = 0;
+  hoiblood->jumpkey = 0;
+  hoiblood->usekey = 0;
   hoiblood->shootkey = 0;
 //  hoiblood->flashcnt = 0;     this one not
 
@@ -281,6 +285,8 @@ void hoi_fly_init(OBJECT *newhoi, UINT16 x, UINT16 y)
   hoiblood->rightkey = 0;
   hoiblood->upkey = 0;
   hoiblood->downkey = 0;
+  hoiblood->jumpkey = 0;
+  hoiblood->usekey = 0;
   hoiblood->shootkey = 0;
 //  hoiblood->flashcnt = 0;   this one not!!!
 
@@ -323,6 +329,8 @@ UINT16 hoi_ai(OBJECT *object)
       if (mc_autorun == -1) hoiblood->leftkey  = 1;
       hoiblood->upkey = 0;
       hoiblood->downkey = 0;
+      hoiblood->jumpkey = 0;
+      hoiblood->usekey = 0;
       hoiblood->shootkey = 0;
     }
     else
@@ -331,6 +339,8 @@ UINT16 hoi_ai(OBJECT *object)
       hoiblood->rightkey = rightkey;
       hoiblood->upkey = upkey;
       hoiblood->downkey = downkey;
+      hoiblood->jumpkey = jumpkey;
+      hoiblood->usekey = usekey;
       hoiblood->shootkey = shootkey;
     }
   }
@@ -1146,9 +1156,8 @@ int hoi_live (OBJECT *object, UINT32 param)
   hoiblood->onobject = 0;
   /* handle jump */
 
-  if (hoiblood->upkey)
+  if (hoiblood->jumpkey)
     {
-        
       hoiblood->idlecnt = 0;
       if (hoiblood->onfloor)
 	{   
@@ -1157,12 +1166,12 @@ int hoi_live (OBJECT *object, UINT32 param)
     }
 
 
-  if (hoiblood->shootkey)
+  if (hoiblood->usekey)
     {
       if (world == 3 && paraflg == 7)   // (level 4 ... big boss is busy)
 	{
 	  hoiblood->idlecnt = 0;
-	  keytab[prefs->shootkey] = 0;
+	  keytab[prefs->usekey] = 0;
 	  if (!hoiblood->kneelcnt)
 	    {
 	      bouncey_init(object->x+20, object->y+20, -(hoiblood->lastdirx)*108 ,-68);
@@ -3029,7 +3038,7 @@ int hoirise_live (OBJECT *object, UINT32 param)
   video->unlock_bbuffer();
   hoiriseblood->frame->unlock_buffer();
 
-  if (shootkey) hoiriseblood->fastmode = 2;
+  if (usekey) hoiriseblood->fastmode = 2;
 
   for (i=0; i<hoiriseblood->fastmode; i++)
   {

@@ -141,6 +141,8 @@ UINT8  leftkey;   // use these global key flags for movement decisions
 UINT8  rightkey;  // they can also be hooked to joystick
 UINT8  upkey;     // mouse or any other input device
 UINT8  downkey;
+UINT8  jumpkey;
+UINT8  usekey;
 UINT8  shootkey;
 
 UINT16 slowmode;

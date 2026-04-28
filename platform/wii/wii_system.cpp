@@ -181,7 +181,9 @@ void CSystem::updateMoonChild(void) {
 	moonChildSubmitKey(PAD_BUTTON_RIGHT, WPAD_BUTTON_DOWN, prefs->rightkey);
 	moonChildSubmitKey(PAD_BUTTON_LEFT, WPAD_BUTTON_UP, prefs->leftkey);
 
+	moonChildSubmitKey(PAD_BUTTON_A, WPAD_BUTTON_2, prefs->jumpkey);
 	moonChildSubmitKey(PAD_BUTTON_A, WPAD_BUTTON_2, prefs->shootkey);
+	moonChildSubmitKey(PAD_BUTTON_B, WPAD_BUTTON_1, prefs->usekey);
 
 	moonChildSubmitKey(PAD_BUTTON_START, WPAD_BUTTON_PLUS, 'Q');
 }

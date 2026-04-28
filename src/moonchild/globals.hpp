@@ -114,6 +114,8 @@ extern UINT8     leftkey;
 extern UINT8     rightkey;
 extern UINT8     upkey;
 extern UINT8     downkey;
+extern UINT8     jumpkey;
+extern UINT8     usekey;
 extern UINT8     shootkey;
 extern UINT16    slowmode;
 extern UINT16    fallspeed;
@@ -276,4 +278,6 @@ extern LEVEL_DESCR levels[5][4];
 #define VK_DOWN 'S'
 #define VK_ESCAPE 'Q'
 #define VK_RETURN 'R'
+#define VK_SPACE ' '
+#define VK_CONTROL 0x11
 

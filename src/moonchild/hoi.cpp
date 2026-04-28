@@ -574,16 +574,16 @@ UINT16 helmut_ai(OBJECT *object)
   if (object->y < hoi->y+170 && object->y > hoi->y+70 && hoi->x < object->x+60 && hoi->x > object->x-60)
     {
       delaypos[8]++;
-      hoiblood->upkey = 0;
+      hoiblood->jumpkey = 0;
       if (delaypos[8]>50)
 	{
-	  hoiblood->upkey = 1;
+	  hoiblood->jumpkey = 1;
 	}
     }
   else
     {
       delaypos[8] = 0;
-      hoiblood->upkey = 0;
+      hoiblood->jumpkey = 0;
     }
 
   if (object->y < hoi->y-10 && object->y > hoi->y-70 && hoi->x < object->x+60 && hoi->x > object->x-60)
@@ -646,23 +646,23 @@ UINT16 helmut2_ai(OBJECT *object)
   if (object->y < hoi->y+170 && object->y > hoi->y+70 && hoi->x < object->x+60 && hoi->x > object->x-60)
     {
       delaypos[8]++;
-      hoiblood->upkey = 0;
+      hoiblood->jumpkey = 0;
       if (delaypos[8]>50)
 	{
-	  hoiblood->upkey = 1;
+	  hoiblood->jumpkey = 1;
 	}
     }
   else
     {
       delaypos[8] = 0;
-      hoiblood->upkey = 0;
+      hoiblood->jumpkey = 0;
     }
 
   if (hoiblood->onfloor > 0 && hoiblood->onfloor < 8)
     {
       if (hoi->y - 20 < object->y)
 	{
-	  hoiblood->upkey = 1;
+	  hoiblood->jumpkey = 1;
 	}
     }
   

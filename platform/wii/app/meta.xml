@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <app version="1">
 	<name>Moon Chiild</name>
-	<version>1.0.0</version>
-	<release_date>20260426000000</release_date>
+	<version>1.0.1</version>
+	<release_date>20260428000000</release_date>
 	<coder>conhlee, TheFlowerVixen</coder>
 	<short_description>It's Moon Child!</short_description>
 <long_description>You've got the power to be his friend... on the Wii!
 
-Hold the Wiimote sideways to play!
+Hold the Wiimote sideways to play! (or use a GameCube controller)
 
-Controls:
+Controls (Wiimote):
 
-D-Pad - Move/Jump
-2 - Fire
+D-Pad - Move
+2 - Jump/Shoot
+1 - Use
 + - Exit Level
+
+Controls (GameCube):
+
+Left Stick/D-Pad - Move
+A - Jump/Shoot
+B - Use
+START - Exit Level
 
 Original repo: https://github.com/TheFlowerVixen/MoonChild-Port
 </long_description>

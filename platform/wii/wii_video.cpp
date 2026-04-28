@@ -285,7 +285,7 @@ void CVideo::drawMoonChild(void) {
  * Public interface
  */
 
-bool initVideo() {
+bool initVideo(int argc, char **argv) {
     sVideo.doInit();
     return true; // It probably worked.
 }

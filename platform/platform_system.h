@@ -6,7 +6,7 @@
 class MoviePlayer;
 extern MoviePlayer* moviePlayer;
 
-bool initSystem();
+bool initSystem(int argc, char **argv);
 void shutdownSystem();
 
 bool pollEvents();

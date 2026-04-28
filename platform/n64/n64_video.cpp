@@ -10,7 +10,7 @@ int pixelBufferPitch = 0;
 
 surface_t gameSurface;
 
-bool initVideo()
+bool initVideo(int argc, char **argv)
 {
     display_init(RESOLUTION_640x480, DEPTH_16_BPP, 3, GAMMA_NONE, FILTERS_DISABLED);
     rdpq_init();

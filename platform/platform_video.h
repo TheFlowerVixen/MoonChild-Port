@@ -10,7 +10,7 @@
 extern uint8_t *pixelBuffer;
 extern int pixelBufferPitch;
 
-bool initVideo();
+bool initVideo(int argc, char **argv);
 void shutdownVideo();
 
 void blitScreen();

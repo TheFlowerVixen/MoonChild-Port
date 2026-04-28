@@ -94,14 +94,14 @@ bool gameTick()
 
 int main(int argc, char **argv)
 {
-	if (!initSystem())
+	if (!initSystem(argc, argv))
 	{
 		CMN_DEBUG_LOG("[main] failed to initialize system subsystem");
 		shutdownSystem();
 		return 1;
 	}
 
-	if (!initVideo())
+	if (!initVideo(argc, argv))
 	{
 		CMN_DEBUG_LOG("[main] failed to initialize video subsystem");
 		shutdownVideo();
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	if (!initAudio())
+	if (!initAudio(argc, argv))
 	{
 		CMN_DEBUG_LOG("[main] failed to initialize audio subsystem");
 		shutdownAudio();

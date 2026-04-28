@@ -69,7 +69,7 @@ void shutdownAudio() {
   Mix_Quit();
 }
 
-bool initAudio() {
+bool initAudio(int argc, char **argv) {
   int initFlags = Mix_Init(MIX_INIT_MP3 | MIX_INIT_OGG);
   if (initFlags == 0) {
     fprintf(stderr, "Mix_Init: %s\n", Mix_GetError());

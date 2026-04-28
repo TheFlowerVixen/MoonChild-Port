@@ -15,13 +15,15 @@
 
 #define STICK_DEADZONE 32
 
+char launchPath[64];
+
 MoviePlayer *moviePlayer;
 
 class CSystem {
 public:
 	CSystem() {}
 
-	void doInit(void);
+	void doInit(int argc, char **argv);
 	void doShutdown(void);
 
 	bool doCalc(void);
@@ -111,7 +113,7 @@ void CSystem::wpadPowerCallback(s32 chan) {
 	sSystem.mResetFlag = true;
 }
 
-void CSystem::doInit(void) {
+void CSystem::doInit(int argc, char **argv) {
 	L2Enhance();
 
 	SYS_STDIO_Report(true);
@@ -129,6 +131,30 @@ void CSystem::doInit(void) {
 	SYS_SetResetCallback(sysResetCallback);
     SYS_SetPowerCallback(sysPowerCallback);
 	WPAD_SetPowerButtonCallback(wpadPowerCallback);
+
+	// Get launch directory
+	if (argc > 0 && argv && argv[0]) {
+		char *slash = strrchr(argv[0], '/');
+		if (slash) {
+			// Verify assets path exists
+			static char launchDirTemp[64];
+			static char assetsDirTemp[80];
+
+			strncpy(launchDirTemp, argv[0], slash - argv[0] + 1);
+			sprintf(assetsDirTemp, "%sassets/", launchDirTemp);
+
+			DIR* dir = opendir(assetsDirTemp);
+			if (dir) {
+				strcpy(launchPath, launchDirTemp);
+				closedir(dir);
+			}
+		}
+	}
+
+	// Fallback path
+	if (!launchPath[0]) {
+		strcpy(launchPath, "/moonchild_");
+	}
 
 	setupMoonChild();
 }
@@ -192,8 +218,8 @@ void CSystem::updateMoonChild(void) {
  * Public interface
  */
 
-bool initSystem() {
-	sSystem.doInit();
+bool initSystem(int argc, char **argv) {
+	sSystem.doInit(argc, argv);
 	return true;
 }
 void shutdownSystem() {
@@ -220,7 +246,7 @@ char *FullPath(char *filename) {
 	}
 
 	static char buffer[128];
-	snprintf(buffer, sizeof(buffer), "/moonchild_assets/moonchild/%s", filename);
+	snprintf(buffer, sizeof(buffer), "%sassets/moonchild/%s", launchPath, filename);
 	return buffer;
 }
 
@@ -231,7 +257,7 @@ char *FullAudioPath(char *filename) {
 	}
 
 	static char buffer[128];
-	snprintf(buffer, sizeof(buffer), "/moonchild_assets/audio/%s", filename);
+	snprintf(buffer, sizeof(buffer), "%sassets/audio/%s", launchPath, filename);
 	return buffer;
 }
 
@@ -241,7 +267,7 @@ char *FullMoviePath(char *filename) {
 	}
 
 	static char buffer[128];
-	snprintf(buffer, sizeof(buffer), "/moonchild_assets/movies/%s", filename);
+	snprintf(buffer, sizeof(buffer), "%sassets/movies/%s", launchPath, filename);
 	return buffer;
 }
 
@@ -252,7 +278,7 @@ char *FullWritablePath(char *filename) {
 	}
 
 	static char buffer[128];
-	snprintf(buffer, sizeof(buffer), "/moonchild_save/%s", filename);
+	snprintf(buffer, sizeof(buffer), "%ssave/%s", launchPath, filename);
 	return buffer;
 }
 

@@ -19,7 +19,7 @@ typedef struct TrackInfo_s
     float volume;
 } TrackInfo;
 
-bool initAudio();
+bool initAudio(int argc, char **argv);
 void shutdownAudio();
 
 TrackInfo getTrackInfo(TrackID id);

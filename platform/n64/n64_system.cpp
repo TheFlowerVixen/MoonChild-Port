@@ -13,7 +13,7 @@ MoviePlayer* moviePlayer;
 joypad_buttons_t butPressed;
 joypad_buttons_t butReleased;
 
-bool initSystem()
+bool initSystem(int argc, char **argv)
 {
     debug_init_isviewer();
     debug_init_usblog();

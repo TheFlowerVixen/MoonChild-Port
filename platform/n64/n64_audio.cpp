@@ -38,7 +38,7 @@ void shutdownAudio()
     audio_close();
 }
 
-bool initAudio()
+bool initAudio(int argc, char **argv)
 {
     audio_init(48000, 4);
 	mixer_init(16);

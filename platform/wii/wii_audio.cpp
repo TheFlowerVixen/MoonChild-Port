@@ -405,7 +405,7 @@ void CAudio::stopBGMPlayback(void) {
  * Public interface
  */
 
-bool initAudio() {
+bool initAudio(int argc, char **argv) {
     sAudio.doInit();
     return true;
 }

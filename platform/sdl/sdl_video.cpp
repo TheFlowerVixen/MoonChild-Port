@@ -11,7 +11,7 @@ SDL_Window *window = nullptr;
 SDL_Renderer *renderer = nullptr;
 SDL_Texture *frameTexture = nullptr;
 
-bool initVideo()
+bool initVideo(int argc, char **argv)
 {
     window = SDL_CreateWindow("moonchild shell", SDL_WINDOWPOS_UNDEFINED,
                             SDL_WINDOWPOS_UNDEFINED, GAME_WIDTH, GAME_HEIGHT, 0);

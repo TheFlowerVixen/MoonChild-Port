@@ -689,6 +689,10 @@ char creds4text[] = // "--------------------"
 
 UINT16 swirltab[64*4];  //upto 64 swirling letters simultaneously  (x,y,amp,char)
 
+UINT8 *keyptrs[7] = { &upkey, &downkey, &leftkey, &rightkey, &shootkey, &jumpkey, &usekey };
+UINT8 cheatcode[10] = { 0, 0, 1, 1, 2, 3, 2, 3, 6, 4 };
+UINT8 cheatprogress = 0;
+
 //-------------------------------------------------------------------------
 /*!	Converts the given filename to its fullpath using unicode
 *///-----------------------------------------------------------------------
@@ -6831,6 +6835,10 @@ HEARTBEAT_FN MC_showtitlesequence1(void)
   fadein = 0;
   fadereturn = (HEARTBEAT_FN) MC_titlesequence1;
   keytab[' '] = 0;
+  if (cheatprogress < 10)
+  {
+    cheatprogress = 0;
+  }
 
   if (popupmenu)
   {
@@ -6858,6 +6866,43 @@ HEARTBEAT_FN MC_titlesequence1(void)
   handleinput1shot();
 
   seqcnt--;
+
+  if (cheatprogress < 10)
+  {
+    for (int i = 0; i < 7; i++)
+    {
+      if (*keyptrs[i])
+      {
+        if (i == cheatcode[cheatprogress])
+        {
+          printf("cheat code progress %d\n", cheatprogress);
+          cheatprogress++;
+          if (cheatprogress == 10)
+          {
+            printf("cheat code successful\n");
+
+            //cheat code
+            maxlevel = 12;
+            
+            for(int i=0; i<13; i++)
+            {
+              blacksperlevel[i] = 0;
+              scoreblacksperlevel[i] = 0;
+            }
+          }
+        }
+        else
+        {
+          printf("cheat code fail\n");
+          cheatprogress = 0;
+        }
+
+        seqcnt = 200;
+        break;
+      }
+    }
+  }
+
   if (!seqcnt)
     {
       fadereturn = (HEARTBEAT_FN) MC_showcredz1;

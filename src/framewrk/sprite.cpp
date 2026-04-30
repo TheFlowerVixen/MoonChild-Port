@@ -126,12 +126,51 @@ extern short g_RenderMode;
 UINT16 frmwrk_fastblit(Cblitbuf *src, Cblitbuf &dest, int x1, int y1, int x2, int y2, int w, int h, int key)
 {
 #ifdef PLATFORM_N64
+	if (x2 <= dest.get_clipx()-w)
+	{
+		return 0;
+	}
+
+	if (x2 < dest.get_clipx())
+	{
+		return 0;
+	}
+
+	if (x2 >= (dest.get_clipwidth()))
+	{
+		return 0;
+	}
+
+	if (x2 > ((dest.get_clipwidth())-w))
+	{
+		return 0;
+	}
+
+	// Clipping in Y-direction
+
+	if (y2 <= dest.get_clipy()-h)
+	{
+		return 0;
+	}
+
+	if (y2 < dest.get_clipy())
+	{
+		return 0;
+	}
+
+	if (y2 >= (dest.get_clipheight()))
+	{
+		return 0;
+	}
+
 	dest.attachSurface(key);
 	rdpq_tex_blit(src->getSurface(), x2, y2, &(rdpq_blitparms_t){
 		.s0 = x1, .t0 = y1,
 		.width = w, .height = h
 	});
 	dest.detachSurface();
+
+	return 1;
 #else
 	// printf("frmwrk_fastblit (%p, %p, %d, %d, %d, %d, %d, %d, %d)\n", src, &dest, x1, y1, x2, y2, w, h, key);
 
@@ -419,9 +458,9 @@ UINT16 frmwrk_fastblit(Cblitbuf *src, Cblitbuf &dest, int x1, int y1, int x2, in
     }
 #endif
 
-#endif // PLATFORM_N64
-
 	return 1;
+
+#endif // PLATFORM_N64
 }
 
 

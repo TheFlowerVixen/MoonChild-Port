@@ -87,7 +87,7 @@ TrackInfo getTrackInfo(TrackID id)
             break;
         
         default:
-            printf("audio track %d requested", id);
+            printf("audio track %d requested\n", id);
             break;
     }
     
@@ -161,6 +161,7 @@ bool panWaveSample(int assetHandle, int left, int right)
 {
     if (assetHandle < MAX_CHANNELS)
         mixer_ch_set_vol(assetHandle, left / MAXVOLUME, right / MAXVOLUME);
+    return true;
 }
 
 bool loadMusicFile(char *path)

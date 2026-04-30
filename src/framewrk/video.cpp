@@ -195,12 +195,13 @@ void Cvideo::swap(void)
 	if (!vidblitbuf)
 		return;
 
+	rdpq_tex_upload_tlut((uint16_t*)m_DibPalette, 0, 256);
+
     surface_t* disp = display_get();
     rdpq_attach_clear(disp, NULL);
 	rdpq_mode_push();
 	rdpq_set_mode_standard();
     rdpq_mode_tlut(TLUT_RGBA16);
-	rdpq_tex_upload_tlut((uint16_t*)m_DibPalette, 0, 256);
 	rdpq_tex_blit(vidblitbuf->getSurface(), 0, 0, NULL);
 	rdpq_mode_pop();
     rdpq_detach_show();

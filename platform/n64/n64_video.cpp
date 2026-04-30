@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <malloc.h>
 
 uint8_t *pixelBuffer;
 int pixelBufferPitch = 0;
@@ -18,7 +19,7 @@ bool initVideo(int argc, char **argv)
     pixelBufferPitch = GAME_WIDTH * BYTES_PER_PIXEL;
 	pixelBuffer = new uint8_t[pixelBufferPitch * GAME_HEIGHT];
 	memset(pixelBuffer, 0, pixelBufferPitch * GAME_HEIGHT);
-    gameSurface = surface_alloc(FMT_RGBA32, GAME_WIDTH, GAME_HEIGHT);
+    gameSurface = surface_make(pixelBuffer, FMT_RGBA32, GAME_WIDTH, GAME_HEIGHT, pixelBufferPitch);
 
     return true;
 }
@@ -34,7 +35,6 @@ void blitScreen()
     surface_t* disp = display_get();
     rdpq_attach_clear(disp, NULL);
     rdpq_set_mode_standard();
-    memcpy(pixelBuffer, gameSurface.buffer, pixelBufferPitch * GAME_HEIGHT);
     rdpq_tex_blit(&gameSurface, 0, 0, NULL);
     rdpq_detach_show();
 }

@@ -29,7 +29,7 @@ bool initVideo(int argc, char **argv)
     }
 
     frameTexture =
-        SDL_CreateTexture(renderer, SDL_PIXELFORMAT_BGRA32, SDL_TEXTUREACCESS_STREAMING,
+        SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING,
                         GAME_WIDTH, GAME_HEIGHT);
     if (!frameTexture)
     {

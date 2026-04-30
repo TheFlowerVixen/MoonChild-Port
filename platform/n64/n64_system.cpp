@@ -103,7 +103,7 @@ char *FullAudioPath(char *filename)
 	static char buffer[4096];
 	if (!filename)
 		return nullptr;
-	snprintf(buffer, sizeof(buffer), "rom:/audio/%s", filename);
+	snprintf(buffer, sizeof(buffer), "rom:/audio/%s64", filename);
 	return buffer;
 }
 

@@ -1796,7 +1796,7 @@ HEARTBEAT_FN MC_fadeout(void)
     video->palette(gamepal, fadeout*4);
     cleanem  =10;
     video->scansync();
-    //    video->swap();
+    video->swap();
  
     return (HEARTBEAT_FN) MC_fadeout;
   }
@@ -1827,7 +1827,7 @@ HEARTBEAT_FN MC_fadeoutslow(void)
     video->palette(gamepal, fadeout*2);
     cleanem  =10;
     video->scansync();
-    //    video->swap();
+    video->swap();
  
     return (HEARTBEAT_FN) MC_fadeoutslow;
   }
@@ -1861,7 +1861,7 @@ HEARTBEAT_FN MC_fadein(void)
     fadein++;
     video->palette(gamepal, fadein*4);
     video->scansync();
-    //    video->swap();
+    video->swap();
  
     return (HEARTBEAT_FN) MC_fadein;
   }
@@ -1880,7 +1880,7 @@ HEARTBEAT_FN MC_fadehalfin(void)
     video->palette(gamepal, fadein*4, 240);
 //    video->palette(gamepal, fadein*4);
     video->scansync();
-    //    video->swap();
+    video->swap();
  
     return (HEARTBEAT_FN) MC_fadehalfin;
   }

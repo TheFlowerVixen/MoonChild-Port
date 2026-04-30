@@ -44,7 +44,7 @@ filesystem/moonchild/%: assets/moonchild/%
 
 # Sources
 
-N64_CXXFLAGS += -Iinclude -I$(SOURCE_DIR) -I$(SOURCE_DIR)/framewrk -I$(SOURCE_DIR)/moonchild -I$(PLATFORM_DIR) \
+N64_CXXFLAGS += -O3 -Iinclude -I$(SOURCE_DIR) -I$(SOURCE_DIR)/framewrk -I$(SOURCE_DIR)/moonchild -I$(PLATFORM_DIR) \
 	-Wall -Wextra -Wno-error \
 	-Wformat-signedness -fno-common \
 	-Wshadow -Wdouble-promotion -Wformat-security -Wformat-overflow -Wformat-truncation \

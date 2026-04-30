@@ -179,7 +179,7 @@ void CVideo::syncMoonChild(void) {
                     const u32 readOffset = (rowBase + xx + x) * 4;
 
                     dest[writeOffset + (y * 2 * 4) + (x * 2) + 0] = src[readOffset + 0]; // Alpha channel
-                    dest[writeOffset + (y * 2 * 4) + (x * 2) + 1] = src[readOffset + 1]; // Red channel
+                    dest[writeOffset + (y * 2 * 4) + (x * 2) + 1] = src[readOffset + 3]; // Blue channel
                 }
             }
             writeOffset += 2 * 4 * 4;
@@ -196,7 +196,7 @@ void CVideo::syncMoonChild(void) {
                     const u32 readOffset = (rowBase + xx + x) * 4;
 
                     dest[writeOffset + (y * 2 * 4) + (x * 2) + 0] = src[readOffset + 2]; // Green channel
-                    dest[writeOffset + (y * 2 * 4) + (x * 2) + 1] = src[readOffset + 3]; // Blue channel
+                    dest[writeOffset + (y * 2 * 4) + (x * 2) + 1] = src[readOffset + 1]; // Red channel
                 }
             }
             writeOffset += 2 * 4 * 4;

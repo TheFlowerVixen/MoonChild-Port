@@ -57,32 +57,32 @@ TrackInfo getTrackInfo(TrackID id)
     switch (id)
     {
         case TRACK_2_TITLE:
-            info.track = "title.wav64";
+            info.track = "title.wav";
             info.volume = 0.8f;
             break;
         
         case TRACK_3_WORLD_1:
-            info.track = "world1.wav64";
+            info.track = "world1.wav";
             info.volume = 0.5f;
             break;
         
         case TRACK_4_WORLD_2:
-            info.track = "world2.wav64";
+            info.track = "world2.wav";
             info.volume = 0.5f;
             break;
         
         case TRACK_5_WORLD_3:
-            info.track = "world3.wav64";
+            info.track = "world3.wav";
             info.volume = 0.5f;
             break;
         
         case TRACK_6_WORLD_4:
-            info.track = "world4.wav64";
+            info.track = "world4.wav";
             info.volume = 0.5f;
             break;
         
         case TRACK_7_GAME_OVER:
-            info.track = "gameover.wav64";
+            info.track = "gameover.wav";
             info.volume = 1.0f;
             break;
         

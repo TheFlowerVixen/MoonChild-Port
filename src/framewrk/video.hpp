@@ -3,6 +3,10 @@
 #ifndef _VIDEO_HPP
 #define _VIDEO_HPP
 
+#ifdef PLATFORM_N64
+#include <libdragon.h>
+#endif
+
 typedef struct MGLDC MGLDC;
 
 struct MGLDC {
@@ -124,6 +128,12 @@ public:
   void   unlock_buffer(void); 
 //  LPDIRECTDRAWSURFACE get_ddraw(void) { return ddsurface; }   // DON'T USE EXTERNALLY
   void   debug(void);                                         // print debug stats
+
+#ifdef PLATFORM_N64
+  void attachSurface(bool alphaKey);
+  void detachSurface();
+  surface_t *getSurface();
+#endif
 private:
   VG_BOOLEAN videoblitbuf;       // TRUE if it is a blitbuf derived from the videoclass
   UINT16 width;
@@ -135,6 +145,9 @@ private:
   INT32  pitch;                  // only valid when blitbuf is locked
 //  LPDIRECTDRAWSURFACE ddsurface;
 
+#ifdef PLATFORM_N64
+  surface_t m_Surface;
+#endif
     char *m_Buffer;		// gewoon een char array
 };
 

@@ -2,6 +2,8 @@
 
 #include "macro.h"
 
+#include "moonchild/globals.hpp"
+
 PALETTEENTRY        dumpe[1024];        // last entered palette  (for requests)
 PALETTEENTRY        pe[1024];        // last entered palette  (for requests)
 
@@ -189,6 +191,20 @@ void Cvideo::DrawLoading(void)
 
 void Cvideo::swap(void)
 {
+#ifdef PLATFORM_N64
+	if (!vidblitbuf)
+		return;
+
+    surface_t* disp = display_get();
+    rdpq_attach_clear(disp, NULL);
+	rdpq_mode_push();
+	rdpq_set_mode_standard();
+    rdpq_mode_tlut(TLUT_RGBA16);
+	rdpq_tex_upload_tlut((uint16_t*)m_DibPalette, 0, 256);
+	rdpq_tex_blit(vidblitbuf->getSurface(), 0, 0, NULL);
+	rdpq_mode_pop();
+    rdpq_detach_show();
+#else
 	static int interlace;
 
 	
@@ -321,7 +337,7 @@ void Cvideo::swap(void)
 		g_Display->Swap(SWAP_FULL_UPDATE);
 	}
  */
-
+#endif
 	
 }
 
@@ -682,12 +698,7 @@ void Cvideo::ConvertPalToDib(void)
 		g = m_Palette[i*3 + 1]>>2;
 		b = m_Palette[i*3 + 2]>>3;
 
-		// Doing this here for N64 is more memory efficient I suppose (don't have to create two buffers) but whatever
-#ifdef PLATFORM_N64
-		m_DibPalette32[i] = (255) | (m_Palette[i*3 + 2]<<8) | (m_Palette[i*3 + 1]<<16) | (m_Palette[i*3 + 0]<<24);
-#else
         m_DibPalette32[i] = (m_Palette[i*3 + 0]) | (m_Palette[i*3 + 1]<<8) | (m_Palette[i*3 + 2]<<16) | (255<<24);
-#endif
         
 		m_DibPalette[i] = (b) + (g<<5) + (r<<11);
 		m_DibPaletteIP[i] = m_DibPalette[i];

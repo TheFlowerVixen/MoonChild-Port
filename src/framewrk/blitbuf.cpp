@@ -2,6 +2,10 @@
 
 #include "../macro.h"
 
+#ifdef PLATFORM_N64
+#include <libdragon.h>
+#endif
+
 
 extern char *FullPath2( char *a_File );
 
@@ -35,7 +39,12 @@ Cblitbuf::Cblitbuf(UINT16 w, UINT16 h, UINT16 top_margin, UINT16 bottom_margin)
   clipheight = h;
   pitch = 0;
 
+#ifdef PLATFORM_N64
+  m_Surface = surface_alloc(FMT_CI8, w, h);
+  m_Buffer = (char *)m_Surface.buffer;
+#else
   m_Buffer = (char *)malloc(w*h);
+#endif
   CMN_ASSERT(m_Buffer != NULL);
 
 //  log_out("Construction succesful!");
@@ -46,7 +55,12 @@ Cblitbuf::Cblitbuf(UINT16 w, UINT16 h, UINT16 top_margin, UINT16 bottom_margin, 
 //  log_out("Constructor: Cblitbuf in systemmem(w=%d, h=%d, top=%d, bottom=%d)",
 //    w, h, top_margin, bottom_margin);
 
+#ifdef PLATFORM_N64
+  m_Surface = surface_alloc(FMT_CI8, w, h);
+  m_Buffer = (char *)m_Surface.buffer;
+#else
   m_Buffer = (char *)malloc(w*h);
+#endif
   CMN_ASSERT(m_Buffer != NULL);
 
   videoblitbuf = VG_FALSE;
@@ -75,9 +89,14 @@ Cblitbuf::Cblitbuf(Cvideo *video)
   clipheight = video->get_height();
   pitch = 0;
 
+#ifdef PLATFORM_N64
+  m_Surface = surface_alloc(FMT_CI8, video->get_width(), video->get_height());
+  m_Buffer = (char *)m_Surface.buffer;
+#else
   m_Buffer = (char *)video->lock_bbuffer();
-  CMN_ASSERT(m_Buffer != NULL);
   video->unlock_bbuffer();
+#endif
+  CMN_ASSERT(m_Buffer != NULL);
 
 //  log_out("Construction succesful!");
 }
@@ -112,7 +131,12 @@ Cblitbuf::Cblitbuf(char *pcx_filename, UINT16 top_margin, UINT16 bottom_margin, 
   sprintf(logbuffer, "w,h = %d,%d\n", w,h);
   LOG(logbuffer);
 
+#ifdef PLATFORM_N64
+  m_Surface = surface_alloc(FMT_CI8, w, h);
+  m_Buffer = (char *)m_Surface.buffer;
+#else
   m_Buffer = (char *)malloc(w*h);
+#endif
   CMN_ASSERT(m_Buffer != NULL);
 
   LOG("malloc\n");
@@ -151,7 +175,14 @@ Cblitbuf::~Cblitbuf(void)
 {
 	if(videoblitbuf==VG_FALSE)
 	{
+#ifdef PLATFORM_N64
+    if (rdpq_get_attached() == &m_Surface)
+      rdpq_detach();
+		surface_free(&m_Surface);
+    m_Buffer = NULL;
+#else
 		free(m_Buffer);
+#endif
 	}
 
 //	log_out("deleting blitbuf");
@@ -160,8 +191,12 @@ Cblitbuf::~Cblitbuf(void)
 
 Cblitbuf &Cblitbuf::clear(UINT16 color_index)
 {
+#ifdef PLATFORM_N64
+  rdpq_attach_clear(&m_Surface, NULL);
+  rdpq_detach();
+#else
 	memset(m_Buffer, color_index, width*height);
-
+#endif
 	return *this;
 }
 
@@ -181,6 +216,10 @@ unsigned char *Cblitbuf::lock_buffer(void)
     pitch = width;
 
     // Copy bitmap bits from system memory to video memory
+#ifdef PLATFORM_N64
+    if (rdpq_get_attached() == &m_Surface)
+      rdpq_detach();
+#endif
     return (unsigned char *)m_Buffer;
 }
 
@@ -254,3 +293,28 @@ void Cblitbuf::debug(void)
     return;
 }
 
+#ifdef PLATFORM_N64
+
+surface_t* Cblitbuf::getSurface()
+{
+  return &m_Surface;
+}
+
+void Cblitbuf::attachSurface(bool alphaKey)
+{
+  rdpq_mode_push();
+  rdpq_mode_begin();
+  rdpq_set_mode_standard();
+  rdpq_mode_filter(FILTER_POINT);
+  rdpq_mode_alphacompare(alphaKey ? 1 : 0);
+  rdpq_mode_end();
+  rdpq_attach(&m_Surface, NULL);
+}
+
+void Cblitbuf::detachSurface()
+{
+  rdpq_detach();
+  rdpq_mode_pop();
+}
+
+#endif

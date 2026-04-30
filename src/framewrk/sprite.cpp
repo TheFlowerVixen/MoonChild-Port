@@ -125,6 +125,14 @@ extern short g_RenderMode;
 
 UINT16 frmwrk_fastblit(Cblitbuf *src, Cblitbuf &dest, int x1, int y1, int x2, int y2, int w, int h, int key)
 {
+#ifdef PLATFORM_N64
+	dest.attachSurface(key);
+	rdpq_tex_blit(src->getSurface(), x1, y1, &(rdpq_blitparms_t){
+		.s0 = x1, .t0 = y1,
+		.width = x2-x1, .height = y2-y1
+	});
+	dest.detachSurface();
+#else
 	// printf("frmwrk_fastblit (%p, %p, %d, %d, %d, %d, %d, %d, %d)\n", src, &dest, x1, y1, x2, y2, w, h, key);
 
 	RECT    rect,drect;
@@ -410,6 +418,8 @@ UINT16 frmwrk_fastblit(Cblitbuf *src, Cblitbuf &dest, int x1, int y1, int x2, in
 		}
     }
 #endif
+
+#endif // PLATFORM_N64
 
 	return 1;
 }

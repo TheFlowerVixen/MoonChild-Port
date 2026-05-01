@@ -5,6 +5,9 @@
 #include <malloc.h>
 #include <string.h>
 #include <ogcsys.h>
+#include <ogc/conf.h>
+#include <ogc/gx.h>
+#include <ogc/video.h>
 #include <gccore.h>
 
 uint8_t *pixelBuffer = NULL;
@@ -43,6 +46,8 @@ private:
 
     void *mFrameBuffer[2];
     void *mCurrentFrameBuffer;
+    
+    f32 mScreenW, mScreenH;
 
     void *mFifoMem;
 
@@ -63,8 +68,15 @@ void CVideo::doInit(void) {
     mVideoMode = new GXRModeObj;
     *mVideoMode = *VIDEO_GetPreferredMode(NULL);
 
-    mVideoMode->efbHeight = GAME_HEIGHT;
-    mVideoMode->fbWidth = GAME_WIDTH;
+    mScreenW = static_cast<f32>(mVideoMode->fbWidth);
+    mScreenH = static_cast<f32>(mVideoMode->efbHeight);
+
+    if (CONF_GetAspectRatio() != 0) {
+        mScreenW *= (4.0f / 3.0f);
+    }
+
+    // mVideoMode->efbHeight = GAME_HEIGHT;
+    // mVideoMode->fbWidth = GAME_WIDTH;
 
 	mFrameBuffer[0] = MEM_K0_TO_K1(SYS_AllocateFramebuffer(mVideoMode));
     mFrameBuffer[1] = MEM_K0_TO_K1(SYS_AllocateFramebuffer(mVideoMode));
@@ -89,7 +101,7 @@ void CVideo::doInit(void) {
 
     GX_SetDispCopyGamma(GX_GM_1_0);
 
-    if (mVideoMode->aa) {
+    if (mVideoMode->aa != 0) {
 		GX_SetPixelFmt(GX_PF_RGB565_Z16, GX_ZC_LINEAR);
 	}
     else {
@@ -105,7 +117,7 @@ void CVideo::doInit(void) {
 
 	VIDEO_Flush();
 	VIDEO_WaitVSync();
-	if (mVideoMode->viTVMode & VI_NON_INTERLACE) {
+	if ((mVideoMode->viTVMode & VI_NON_INTERLACE) != 0) {
         VIDEO_WaitVSync();
     }
 
@@ -139,11 +151,11 @@ void CVideo::setupMoonChild(void) {
     pixelBufferPitch = GAME_WIDTH * BYTES_PER_PIXEL;
 
     u32 pixelBufferSize = (pixelBufferPitch * GAME_HEIGHT);
-    pixelBuffer = (u8 *)aligned_alloc(32, pixelBufferSize);
+    pixelBuffer = (u8 *)aligned_alloc(32, (pixelBufferSize + 31) & ~31);
     memset(pixelBuffer, 0x00, pixelBufferSize);
 
     u32 sizeofIndirectTexMem = ((GAME_WIDTH + 3) / 4) * ((GAME_HEIGHT + 3) / 4) * 32 * 2;
-    mMCIndirectTexMem = aligned_alloc(32, sizeofIndirectTexMem);
+    mMCIndirectTexMem = aligned_alloc(32, (sizeofIndirectTexMem + 31) & ~31);
 
     GX_InitTexObj(&mMCIndirectTexObj, mMCIndirectTexMem, GAME_WIDTH, GAME_HEIGHT, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
     GX_InitTexObjFilterMode(&mMCIndirectTexObj, GX_LINEAR, GX_LINEAR);
@@ -208,14 +220,8 @@ void CVideo::syncMoonChild(void) {
 }
 
 void CVideo::drawMoonChild(void) {
-    f32 coord[4];
-    coord[0] = 0.0f;
-    coord[1] = 0.0f;
-    coord[2] = 1.0f;
-    coord[3] = 1.0f;
-
     Mtx44 projMtx;
-    guOrtho(projMtx, coord[0], coord[2], coord[1], coord[3], 0.0f, 500.0f);
+    guOrtho(projMtx, 0.0f, mScreenH, 0.0f, mScreenW, 0.0f, 500.0f);
 	GX_LoadProjectionMtx(projMtx, GX_ORTHOGRAPHIC);
 
     GX_SetScissor(0, 0, mVideoMode->fbWidth, mVideoMode->efbHeight);
@@ -264,18 +270,27 @@ void CVideo::drawMoonChild(void) {
     GX_SetTevColor(GX_TEVREG0, (GXColor){ 0x00, 0x00, 0x00, 0xFF });
     GX_SetTevColor(GX_TEVREG1, (GXColor){ 0xFF, 0xFF, 0xFF, 0xFF });
 
+    f32 height = mScreenH;
+    f32 width = height * (static_cast<f32>(GAME_WIDTH) / static_cast<f32>(GAME_HEIGHT));
+
+    f32 x0 = (mScreenW - width) / 2.0f;
+    f32 x1 = x0 + width;
+
+    f32 y0 = 0.0f;
+    f32 y1 = height;
+
     GX_Begin(GX_QUADS, GX_VTXFMT0, 4);
 
-    GX_Position2f32(coord[0], coord[1]);
+    GX_Position2f32(x0, y0);
     GX_TexCoord2f32(0.0f, 0.0f);
 
-    GX_Position2f32(coord[0], coord[3]);
+    GX_Position2f32(x0, y1);
     GX_TexCoord2f32(0.0f, 1.0f);
 
-    GX_Position2f32(coord[2], coord[3]);
+    GX_Position2f32(x1, y1);
     GX_TexCoord2f32(1.0f, 1.0f);
 
-    GX_Position2f32(coord[2], coord[1]);
+    GX_Position2f32(x1, y0);
     GX_TexCoord2f32(1.0f, 0.0f);
 
     GX_End();

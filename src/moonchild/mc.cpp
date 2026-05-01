@@ -96,6 +96,7 @@ int	  FirstTimeShowCredzFlg;
 //#include <direct.h>
 //#include <iostream.h>
 #include <stdlib.h>
+#include <dirent.h>
 //#include <fstream.h>
 #include "../framewrk/frm_wrk.hpp"
 //#include <conio.h>
@@ -277,10 +278,7 @@ void menuf11(void);
 void menuf12(void);
 void menuf121(void);
 void menuf1211(void);
-void menuf12111(void);
-void menuf121111(void);
-void menuf1211111(void);
-void menuf12111111(void);
+void menuf1212(void);
 void menuf122(void);
 void menuf1221(void);
 void menuf1222(void);
@@ -482,11 +480,11 @@ char optionstext[] = // "--------------------"
                       "                    "
                       "=       PLAY        "
                       "                    "
-                      "                    "
+                      "      SETTINGS      "
                       "                    "
                       "        DEMO        "
                       "                    "
-                      "                    "
+                      "        EXIT        "
                       "                    "
                       "                   @";
 
@@ -518,7 +516,11 @@ MENU_ITEM enter_menu[] =
 MENU_ITEM menu1[] =
 {
   {  5, menuf11, "=       PLAY        "},
+  {  7, menuf12, "=     SETTINGS      "},
   {  9, menuf14, "=       DEMO        "},
+#ifndef PLATFORM_N64
+  { 11, menuf13, "=       EXIT        "},
+#endif
   { 0,0,0}
 };
 
@@ -531,11 +533,37 @@ MENU_ITEM menu12[] =
   { 0,0,0}
 };
 
+char *controlatxt  = "+CONTROL SCHEME: A  ";
+char *controlbtxt  = "+CONTROL SCHEME: B  ";
+
+#if defined(PLATFORM_WII)
+char *jumpbuttonatxt = "      JUMP: 2       ";
+char *jumpbuttonbtxt = "      JUMP: UP      ";
+char *usebuttonatxt =  "       USE: 1       ";
+char *usebuttonbtxt =  "       USE: 2       ";
+#elif defined(PLATFORM_N64)
+char *jumpbuttonatxt = "      JUMP: A       ";
+char *jumpbuttonbtxt = "      JUMP: UP      ";
+char *usebuttonatxt =  "       USE: B       ";
+char *usebuttonbtxt =  "       USE: A       ";
+#else
+char *jumpbuttonatxt = "+   JUMP: SPACE     ";
+char *jumpbuttonbtxt = "=     JUMP: UP      ";
+char *usebuttonatxt =  "=     USE: CTRL     ";
+char *usebuttonbtxt =  "     USE: SPACE     ";
+#endif
+
 MENU_ITEM menu121[] =
 {
-  {  7, menuf1211, " PRESS ACTION KEY:  "},
+  {  5, menuf1211, controlatxt  },
+  {  7, NULL, jumpbuttonatxt  },
+  {  9, NULL, usebuttonatxt  },
+  {  11, menuf1212, "=      RETURN       "},
   { 0,0,0}
 };
+
+#if 0
+
 MENU_ITEM menu1211[] =
 {
   {  7, menuf12111, "   PRESS UP KEY:    "},
@@ -556,6 +584,8 @@ MENU_ITEM menu1211111[] =
   {  7, menuf12111111, "+PRESS RIGHT KEY:   "},
   { 0,0,0}
 };
+
+#endif
 
 //char *vgaontxt   = "  VIDEO MEM : 2 MB  ";
 //char *vgaofftxt  = "  VIDEO MEM : 1 MB  ";
@@ -591,7 +621,11 @@ MENU_ITEM menu123[] =
 
 MENU_ITEM menu13[] =
 {
-  {  6, menuf131, "=    TO WINDOWS     "},
+#ifdef PLATFORM_SDL
+  {  6, menuf131, "=    TO DESKTOP     "},
+#else
+  {  6, menuf131, "+    TO LOADER      "},
+#endif
   {  8, menuf132, "=      CANCEL       "},
   { 0,0,0}
 };
@@ -618,26 +652,25 @@ UINT16 optsavebuf[32];
 
 
 char credstext[] = // "--------------------"
-"                    "
-"+  INSTRUCTIONS:    "
-"                    "
-"= COLLECT AT LEAST  "
-"+ 77 OF 84 HIDDEN   "
-"+  DARK DIAMONDS    "
-"+  TO UNLOCK THE    "
-"=PSYCHEDELIC FINALE "
-"                    "
-"+ MOON CHILD GAME   "
-"=  OPTIONS CAN BE   "
-"  FOUND IN THE IOS  "
-"      SETTINGS      "
-"                    "
-"                   @";
+                      "                    "
+                      "=    MOON CHILD     "
+                      "                    "
+                      "                    "
+                      "      THE LOOK      "
+                      "+   METIN SEVEN     "
+                      "                    "
+                      "=     THE FEEL      "
+                      "+REINIER VAN VLIET  "
+                      "                    "
+                      "+    THE SOUND      "
+                      "= RAMON BRAUMULLER  "
+                      "                    "
+                      "                   @";
 
 
 char creds2text[] = // "--------------------"
                       "                    "
-                      "=   BASED ON OUR    "
+                      "=   BASED ON THE    "
                       "+1997 WINDOWS GAME  "
                       "                    "
                       "+   CONVERSION:    ="
@@ -652,22 +685,61 @@ char creds2text[] = // "--------------------"
                       "                    "
                       "                   @";
 
+#if defined(PLATFORM_WII)
 
 char creds3text[] = // "--------------------"
 "                    "
 "=    MOON CHILD     "
+"=     WII PORT      "
 "                    "
+"=  IMPLEMENTATION   "
+"=    COHNLEE.NL     "
 "                    "
-"+    THE LOOK:      "
-"+   METIN SEVEN     "
+"=    PORT SETUP     "
+"=  THEFLOWERVIXEN   "
 "                    "
-"+    THE FEEL:      "
-"+REINIER VAN VLIET  "
-"                    "
-"=    THE SOUND:     "
-"  RAMON BRAUMULLER  "
-"                    "
+"=   HOUSEKEEPING    "
+"=  THEFLOWERVIXEN   "
+"=    COHNLEE.NL     "
 "                   @";
+
+#elif defined(PLATFORM_N64)
+
+char creds3text[] = // "--------------------"
+"                    "
+"=    MOON CHILD     "
+"=     N64 PORT      "
+"                    "
+"=  IMPLEMENTATION   "
+"=  THEFLOWERVIXEN   "
+"                    "
+"=    PORT SETUP     "
+"=  THEFLOWERVIXEN   "
+"                    "
+"=   HOUSEKEEPING    "
+"=  THEFLOWERVIXEN   "
+"=    COHNLEE.NL     "
+"                   @";
+
+#else
+
+char creds3text[] = // "--------------------"
+"                    "
+"=    MOON CHILD     "
+"=     SDL PORT      "
+"                    "
+"=  IMPLEMENTATION   "
+"+PROOFOFCONCEPT.NL  "
+"                    "
+"=    PORT SETUP     "
+"=  THEFLOWERVIXEN   "
+"                    "
+"=   HOUSEKEEPING    "
+"=  THEFLOWERVIXEN   "
+"=    COHNLEE.NL     "
+"                   @";
+
+#endif
 
 char creds4text[] = // "--------------------"
                       "                    "
@@ -689,8 +761,8 @@ char creds4text[] = // "--------------------"
 
 UINT16 swirltab[64*4];  //upto 64 swirling letters simultaneously  (x,y,amp,char)
 
-UINT8 *keyptrs[7] = { &upkey, &downkey, &leftkey, &rightkey, &shootkey, &jumpkey, &usekey };
-UINT8 cheatcode[10] = { 0, 0, 1, 1, 2, 3, 2, 3, 6, 4 };
+UINT8 *keyptrs[KEY_COUNT] = { &upkey, &downkey, &leftkey, &rightkey, &shootkey, &usekey, &quitkey };
+UINT8 cheatcode[10] = { 0, 0, 1, 1, 2, 3, 2, 3, 5, 4 };
 UINT8 cheatprogress = 0;
 
 //-------------------------------------------------------------------------
@@ -923,29 +995,17 @@ void save_options(void)
   optsavebuf[1] = animsflg;
   optsavebuf[2] = musicflg;
   optsavebuf[3] = sfxflg;
-  optsavebuf[4] = prefs->shootkey;
-  optsavebuf[5] = prefs->upkey;
-  optsavebuf[6] = prefs->downkey;
-  optsavebuf[7] = prefs->leftkey;
-  optsavebuf[8] = prefs->rightkey;
+  optsavebuf[4] = controlflg;
   
-  savefile("mc_opts.dat", (char *) optsavebuf, 18);
+  savefile("mc_opts.dat", (char *) optsavebuf, 10);
 
 }
 
 
 void load_options(void)
 {
-  prefs->upkey = VK_UP;
-  prefs->downkey = VK_DOWN;
-  prefs->leftkey = VK_LEFT;
-  prefs->rightkey = VK_RIGHT;
-  prefs->jumpkey = VK_SPACE;
-  prefs->usekey = VK_CONTROL;
-  prefs->shootkey = VK_RETURN;
-
   UINT16 rc;
-  rc = loadfile("mc_opts.dat", (char *) optsavebuf, 18);
+  rc = loaddocfile("mc_opts.dat", (char *) optsavebuf, 10);
 
   if (rc)
   {
@@ -953,11 +1013,7 @@ void load_options(void)
     animsflg = optsavebuf[1];
     musicflg = optsavebuf[2];
     sfxflg = optsavebuf[3];
-    prefs->shootkey = optsavebuf[4];
-    prefs->upkey = optsavebuf[5];
-    prefs->downkey = optsavebuf[6];
-    prefs->leftkey = optsavebuf[7];
-    prefs->rightkey = optsavebuf[8];
+    controlflg = optsavebuf[4];
 
     if (sfxflg)
     {
@@ -1358,7 +1414,7 @@ HEARTBEAT_FN MC_notenoughvram(void)
 {
   video->swap();
 
-  if(keytab[' '] == 0)   return (HEARTBEAT_FN) MC_notenoughvram;
+  if(keytab[KEY_SHOOT] == 0)   return (HEARTBEAT_FN) MC_notenoughvram;
 
   fadereturn = (HEARTBEAT_FN)MC_towindows;
   return (HEARTBEAT_FN) MC_fadeout;
@@ -2345,6 +2401,7 @@ HEARTBEAT_FN MC_soundsampler(void)
 {
   handleinput1shot();
 
+#if 0
   if (keytab['1'] == 1)
     {
       world = 0;
@@ -2363,6 +2420,7 @@ HEARTBEAT_FN MC_soundsampler(void)
       keytab['3'] = 0;
       start_cd();
     }
+#endif
   if (shootkey)
     {
       UINT16 rc;
@@ -2461,9 +2519,9 @@ HEARTBEAT_FN MC_endofdemo2(void)
   video->swap();
   video->scansync();
 
-  if (keytab[' '])
+  if (keytab[KEY_SHOOT])
     {
-      keytab[' '] = 0;
+      keytab[KEY_SHOOT] = 0;
       fadereturn = (HEARTBEAT_FN) MC_towindows;
       fadeout = 63;
       return (HEARTBEAT_FN) MC_fadeout;
@@ -4824,9 +4882,9 @@ void recorder(void)
     
       if(recbyte & 1)  leftkey  = 1;
       if(recbyte & 2)  rightkey = 1;
-      if(recbyte & 4)  jumpkey  = 1;
+      if(recbyte & 4)  (controlflg ? upkey : shootkey) = 1;
       if(recbyte & 8)  downkey  = 1;
-      if(recbyte & 16) usekey   = 1;      
+      if(recbyte & 16) (controlflg ? shootkey : usekey)   = 1;      
     }
     else
     {
@@ -4835,9 +4893,9 @@ void recorder(void)
       recbyte = 0;
       if(leftkey)  recbyte |= 1;
       if(rightkey) recbyte |= 2;
-      if(jumpkey)  recbyte |= 4;
+      if((controlflg ? upkey : shootkey))  recbyte |= 4;
       if(downkey)  recbyte |= 8;
-      if(usekey)   recbyte |= 16;
+      if((controlflg ? shootkey : usekey))   recbyte |= 16;
     
       *(recpnt++) = recbyte;
     }
@@ -4855,7 +4913,6 @@ void peekabooh(void)
       rightkey = 0;
       upkey    = 0;
       downkey  = 0;
-      jumpkey  = 0;
       usekey   = 0;
       shootkey = 0;
 
@@ -5462,7 +5519,6 @@ void glob_game_init(void)
   rightkey = 0;
   upkey = 0;
   downkey = 0;
-  jumpkey = 0;
   usekey = 0;
   shootkey = 0;
   intensity = 0;
@@ -5669,67 +5725,50 @@ void query_joystickloop(int joynumber)    // 0 or 1 !!
 
 void check_keys(void)
 {
-
-  if (keytab['N'] == 1)
-    {
 #ifndef DEMOVERSION
 #ifdef EDITOR
+  if (keytab['N'] == 1)
+    {
       keytab['N'] = 0;
       player1.nrofblack = 0;
 	  updatedarkdiam();
       nextlvlflg = 1;
       log_out("N pressed.... skipping to next level");
-#endif
-#endif
     }
 
 //  if (keytab['S'] == 1)
 //    {
-#ifndef DEMOVERSION
-#ifdef EDITOR
 //      keytab['S'] = 0;
 //      slowmode ^= 1;
-#endif
-#endif
 //    }
 
 //  if (keytab['D'] == 1)
 //    {
-#ifndef DEMOVERSION
-#ifdef EDITOR
 //      keytab['D'] = 0;
 //      gen_doolhof();
-#endif
-#endif
 //    }
 
 
   if (keytab['U'] == 1)
     {
-#ifndef DEMOVERSION
-#ifdef EDITOR
       if (editflg)
       {
         keytab['U'] = 0;
         savelevelmap();
       }
-#endif
-#endif
     }
 
   if (keytab['E'] == 1)
     {
-#ifndef DEMOVERSION
-#ifdef EDITOR
       editflg ^= 1;
       keytab['E'] = 0;
-#endif
-#endif
     }
+#endif
+#endif
 
-  if (keytab[VK_ESCAPE] == 1)
+  if (quitkey)
     {
-      keytab[VK_ESCAPE] = 0;
+      keytab[KEY_QUIT] = 0;
 
       if (hoi->frame)   // Hoi wappert niet op dit moment?
 	  {
@@ -5737,7 +5776,8 @@ void check_keys(void)
 	  }
     }
       
-      
+#if 0
+
   if (keytab['P'] == 1)
     {
       keytab['P'] = 0;
@@ -5747,8 +5787,7 @@ void check_keys(void)
         
 //      pauseflg ^= 1;
     }
-      
-#if 0      
+        
   if (keytab['1'] == 1 && world == 3)
     {
       paraflg = 3;
@@ -5780,13 +5819,10 @@ void check_keys(void)
   
     }
 	  
-#endif
-	  
   if (keytab['C'] == 1)
     {
       keytab['C'] = 0;
 
-#if 0
       for (int k=0; k<player1.loadedmap->mapsizex*player1.loadedmap->mapsizey/(32*32); k++)
   {
     player1.loadedmap->map[k] = 0;
@@ -5799,9 +5835,10 @@ void check_keys(void)
 
 //      map_build(&player1);
 //      map_build(&player2);
-#endif
 
     }
+
+#endif
 
   handleinputloop();
 
@@ -5810,141 +5847,32 @@ void check_keys(void)
 
 void handleinput1shot(void)
 {
-  leftkey  = 0;
-  rightkey = 0;
-  upkey    = 0;
-  downkey  = 0;
-  jumpkey  = 0;
-  usekey   = 0;
-  shootkey = 0;
-
-
-
-  if (ingameflg == 0)     // are we in the titlescreen right now??
+  for (int i = 0; i < KEY_COUNT; i++)
   {
-    if (keytab[VK_LEFT])
+    *keyptrs[i] = 0;
+    if (keytab[i])
     {
-      keytab[VK_LEFT] = 0;
-      leftkey  = 1;
-    }
-    if (keytab[VK_RIGHT])
-    {
-      keytab[VK_RIGHT] = 0;
-      rightkey = 1;
-    }
-    if (keytab[VK_UP])
-    {
-      keytab[VK_UP] = 0;
-      upkey    = 1;
-    }
-    if (keytab[VK_DOWN])
-    {
-      keytab[VK_DOWN] = 0;
-      downkey  = 1;
-    }
-    if (keytab[VK_SPACE])
-    {
-      keytab[VK_SPACE] = 0;
-      jumpkey = 1;
-    }
-    if (keytab[VK_CONTROL])
-    {
-      keytab[VK_CONTROL] = 0;
-      usekey = 1;
-    }
-    if (keytab[VK_RETURN])
-    {
-      keytab[VK_RETURN] = 0;
-      shootkey = 1;
-    }
-  }
-  else
-  {
-    if (keytab[prefs->leftkey])
-    {
-      keytab[prefs->leftkey] = 0;
-      leftkey  = 1;
-    }
-    if (keytab[prefs->rightkey])
-    {
-      keytab[prefs->rightkey] = 0;
-      rightkey = 1;
-    }
-    if (keytab[prefs->upkey])
-    {
-      keytab[prefs->upkey] = 0;
-      upkey    = 1;
-    }
-    if (keytab[prefs->downkey])
-    {
-      keytab[prefs->downkey] = 0;
-      downkey  = 1;
-    }
-    if (keytab[prefs->jumpkey])
-    {
-      keytab[prefs->jumpkey] = 0;
-      jumpkey = 1;
-    }
-    if (keytab[prefs->usekey])
-    {
-      keytab[prefs->usekey] = 0;
-      usekey = 1;
-    }
-    if (keytab[prefs->shootkey])
-    {
-      keytab[prefs->shootkey] = 0;
-      shootkey = 1;
+      keytab[i] = 0;
+      *keyptrs[i] = 1;
     }
   }
 
   query_joystick(0);
-
-  keytab[prefs->shootkey] = 0;
 }
 
 
 void handleinputloop(void)
 {
-  leftkey  = 0;
-  rightkey = 0;
-  upkey    = 0;
-  downkey  = 0;
-  jumpkey  = 0;
-  usekey   = 0;
-  shootkey = 0;
-
-  if (keytab[prefs->leftkey])
+  for (int i = 0; i < KEY_COUNT; i++)
+  {
+    *keyptrs[i] = 0;
+    if (keytab[i])
     {
-      leftkey  = 1;
+      *keyptrs[i] = 1;
     }
-  if (keytab[prefs->rightkey])
-    {
-      rightkey = 1;
-    }
-  if (keytab[prefs->upkey])
-    {
-      upkey    = 1;
-    }
-  if (keytab[prefs->downkey])
-    {
-      downkey  = 1;
-    }
-  if (keytab[prefs->jumpkey])
-    {
-      jumpkey = 1;
-    }
-  if (keytab[prefs->usekey])
-    {
-      usekey = 1;
-    }
-  if (keytab[prefs->shootkey])
-    {
-      shootkey = 1;
-    }
+  }
 
   query_joystickloop(0);
-
-  keytab[prefs->shootkey] = 0;
 }
 
 
@@ -6271,6 +6199,7 @@ VG_BOOLEAN loaddocfile(char * fname, char *buffer, UINT32 length)
     fp = fopen(FullWritablePath(fname), "rb");
     if (!fp)
     {
+      printf("couldn't open %s for reading\n", fname);
         return VG_FALSE;
     }
     
@@ -6289,6 +6218,7 @@ VG_BOOLEAN savedocfile(char * fname, char *buffer, UINT32 length)
     fp = fopen(FullWritablePath(fname), "wb");
     if (!fp)
     {
+      printf("couldn't open %s for writing\n", fname);
         return VG_FALSE;
     }
     
@@ -6834,7 +6764,7 @@ HEARTBEAT_FN MC_showtitlesequence1(void)
   titlebrightness = 0;
   fadein = 0;
   fadereturn = (HEARTBEAT_FN) MC_titlesequence1;
-  keytab[' '] = 0;
+  keytab[KEY_SHOOT] = 0;
   if (cheatprogress < 10)
   {
     cheatprogress = 0;
@@ -6869,7 +6799,7 @@ HEARTBEAT_FN MC_titlesequence1(void)
 
   if (cheatprogress < 10)
   {
-    for (int i = 0; i < 7; i++)
+    for (int i = 0; i < 6; i++)
     {
       if (*keyptrs[i])
       {
@@ -6889,6 +6819,8 @@ HEARTBEAT_FN MC_titlesequence1(void)
               blacksperlevel[i] = 0;
               scoreblacksperlevel[i] = 0;
             }
+
+            cheatmode = 1;
           }
         }
         else
@@ -6998,9 +6930,8 @@ HEARTBEAT_FN MC_menu(void)
 
   if (musicstoppedflg) start_cd();   // did the music stop when we where IN the menu??
 
-  if (keytab[VK_ESCAPE])
+  if (quitkey)
   {
-	keytab[VK_ESCAPE] = 0;
     if (menupoint == menu1)
 	{
       titlepic->draw_nokey(*refreshpic, 0, 0, 0, 0, 640, 480);
@@ -7011,7 +6942,7 @@ HEARTBEAT_FN MC_menu(void)
       menupoint = menu1;
       menuleavefunc = (HEARTBEAT_FN) MC_buildmenu;
 	}
-    if (menupoint == menu121 || menupoint == menu1211 || menupoint == menu12111 || menupoint == menu121111 || menupoint == menu1211111 || menupoint == menu122 || menupoint == menu123)
+    if (menupoint == menu121 || menupoint == menu122 || menupoint == menu123)
 	{
       menupoint = menu12;
       menuleavefunc = (HEARTBEAT_FN) MC_buildmenu;
@@ -7049,7 +6980,11 @@ HEARTBEAT_FN MC_menu(void)
       
       if (menupoint[menuitem+1].linenr != 0)
   {
-    menuitem++;
+      do
+      {
+        menuitem++;
+      }
+      while (!menupoint[menuitem].menu_fn);
   }
     }
 
@@ -7059,7 +6994,11 @@ HEARTBEAT_FN MC_menu(void)
 	  upkey = 0;
       if (menuitem != 0)
   {
-    menuitem--;
+      do
+      {
+        menuitem--;
+      }
+      while (!menupoint[menuitem].menu_fn);
   }
     }
 
@@ -7180,20 +7119,46 @@ void menuf11(void)
 
 void menuf12(void)
 {
-	extern int g_SettingsFlg;
-
-	g_SettingsFlg = 1;
-//  menupoint = menu12;
-//  menuleavefunc = (HEARTBEAT_FN) MC_buildmenu;
+  menupoint = menu12;
+  menuleavefunc = (HEARTBEAT_FN) MC_buildmenu;
 };
 
 void menuf121(void)
 {
-  keyquery = 1;
-  lastkey = 0;
   menupoint = menu121;
   menuleavefunc = (HEARTBEAT_FN) MC_buildmenu;
 }
+
+void menuf1211(void)
+{
+  // change control scheme
+
+    controlflg ^= 1;
+
+  if (controlflg)
+    {
+      menu121[0].menutext = controlbtxt;
+      menu121[1].menutext = jumpbuttonbtxt;
+      menu121[2].menutext = usebuttonbtxt;
+    }
+  else
+    {
+      menu121[0].menutext = controlatxt;
+      menu121[1].menutext = jumpbuttonatxt;
+      menu121[2].menutext = usebuttonatxt;
+    }
+  menuleavefunc = (HEARTBEAT_FN) MC_buildmenu;
+}
+
+void menuf1212(void)
+{
+  // return from input menu
+  menupoint = menu12;
+  menuleavefunc = (HEARTBEAT_FN) MC_buildmenu;
+}
+
+#if 0
+
 void menuf1211(void)
 {
   keyquery = 1;
@@ -7274,11 +7239,14 @@ void menuf12111111(void)
   
 }
 
+#endif
+
 void menuf122(void)
 {
   menupoint = menu122;
   menuleavefunc = (HEARTBEAT_FN) MC_buildmenu;
 }
+
 void menuf1221(void)
 {
   // toggle SVGA
@@ -8583,9 +8551,8 @@ HEARTBEAT_FN MC_puzzleselect(void)
     }
 
 
-  if (keytab[VK_ESCAPE])
+  if (quitkey)
   {
-      keytab[VK_ESCAPE] = 0;
       return (HEARTBEAT_FN) MC_abortpuzzle;
   }  
   if ( shootkey ) 
@@ -8636,9 +8603,8 @@ HEARTBEAT_FN MC_puzzleshow(void)
       return (HEARTBEAT_FN) MC_endpuzzle;
     }
 
-  if (keytab[VK_ESCAPE])
+  if (quitkey)
   {
-      keytab[VK_ESCAPE] = 0;
       return (HEARTBEAT_FN) MC_abortpuzzle;
   }  
 

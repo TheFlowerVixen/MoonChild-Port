@@ -163,6 +163,7 @@ void CSystem::doShutdown(void) {
 	WPAD_Shutdown();
 
 	if (mShutdownFlag) {
+		framework_ExitGame();
 		SYS_ResetSystem(SYS_POWEROFF, 0, 0);
 		for (;;);
 	}
@@ -198,20 +199,19 @@ void CSystem::setupMoonChild(void) {
 }
 
 void CSystem::updateMoonChild(void) {
-	moonChildCalcGCAxis(mGCAxisX, PAD_BUTTON_LEFT, PAD_BUTTON_RIGHT, prefs->leftkey, prefs->rightkey);
-	moonChildCalcGCAxis(mGCAxisY, PAD_BUTTON_DOWN, PAD_BUTTON_UP, prefs->downkey, prefs->upkey);
+	moonChildCalcGCAxis(mGCAxisX, PAD_BUTTON_LEFT, PAD_BUTTON_RIGHT, KEY_LEFT, KEY_RIGHT);
+	moonChildCalcGCAxis(mGCAxisY, PAD_BUTTON_DOWN, PAD_BUTTON_UP, KEY_DOWN, KEY_UP);
 
-	moonChildSubmitKey(PAD_BUTTON_DOWN, WPAD_BUTTON_LEFT, prefs->downkey);
-	moonChildSubmitKey(PAD_BUTTON_UP, WPAD_BUTTON_RIGHT, prefs->upkey);
+	moonChildSubmitKey(PAD_BUTTON_DOWN, WPAD_BUTTON_LEFT, KEY_DOWN);
+	moonChildSubmitKey(PAD_BUTTON_UP, WPAD_BUTTON_RIGHT, KEY_UP);
 
-	moonChildSubmitKey(PAD_BUTTON_RIGHT, WPAD_BUTTON_DOWN, prefs->rightkey);
-	moonChildSubmitKey(PAD_BUTTON_LEFT, WPAD_BUTTON_UP, prefs->leftkey);
+	moonChildSubmitKey(PAD_BUTTON_RIGHT, WPAD_BUTTON_DOWN, KEY_RIGHT);
+	moonChildSubmitKey(PAD_BUTTON_LEFT, WPAD_BUTTON_UP, KEY_LEFT);
 
-	moonChildSubmitKey(PAD_BUTTON_A, WPAD_BUTTON_2, prefs->jumpkey);
-	moonChildSubmitKey(PAD_BUTTON_A, WPAD_BUTTON_2, prefs->shootkey);
-	moonChildSubmitKey(PAD_BUTTON_B, WPAD_BUTTON_1, prefs->usekey);
+	moonChildSubmitKey(PAD_BUTTON_A, WPAD_BUTTON_2, KEY_SHOOT);
+	moonChildSubmitKey(PAD_BUTTON_B, WPAD_BUTTON_1, KEY_USE);
 
-	moonChildSubmitKey(PAD_BUTTON_START, WPAD_BUTTON_PLUS, 'Q');
+	moonChildSubmitKey(PAD_BUTTON_START, WPAD_BUTTON_PLUS, KEY_QUIT);
 }
 
 /*

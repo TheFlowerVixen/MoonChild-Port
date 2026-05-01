@@ -87,6 +87,7 @@ UINT16 vgaflg=1;
 UINT16 animsflg=1;
 UINT16 musicflg=1;
 UINT16 sfxflg=1;
+UINT16 controlflg=0;
 
 UINT16 autoscrollspd;  // if something else than 0 the level scrolls with this speed
 
@@ -135,15 +136,15 @@ UINT16 fakespeedadd = 0;
 // stuff for level2 chemical fumes section
 UINT16 drunk_amp;
 
-char   keytab[256];
+UINT8  keytab[KEY_COUNT];
 
 UINT8  leftkey;   // use these global key flags for movement decisions
 UINT8  rightkey;  // they can also be hooked to joystick
 UINT8  upkey;     // mouse or any other input device
 UINT8  downkey;
-UINT8  jumpkey;
 UINT8  usekey;
 UINT8  shootkey;
+UINT8  quitkey;
 
 UINT16 slowmode;
 
@@ -384,12 +385,13 @@ PREFS defprefs = {
 //    0x68,       // up
 //    0x62,       // down
 //  ' '
-
+#if 0
     VK_LEFT,
     VK_RIGHT,
     VK_UP,
     VK_DOWN,
     ' ',
+#endif
 
 //  0,
 //  0,

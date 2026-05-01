@@ -84,6 +84,9 @@ bool pollEvents()
 				case SDL_SCANCODE_SPACE:
 					keyDown(SDL_SCANCODE_SPACE);
 					break;
+				case SDL_SCANCODE_LCTRL:
+					keyDown(SDL_SCANCODE_LCTRL);
+					break;
 				case SDL_SCANCODE_ESCAPE:
 					keyDown(SDL_SCANCODE_ESCAPE);
 					break;
@@ -133,6 +136,9 @@ bool pollEvents()
 					break;
 				case SDL_SCANCODE_SPACE:
 					keyUp(SDL_SCANCODE_SPACE);
+					break;
+				case SDL_SCANCODE_LCTRL:
+					keyUp(SDL_SCANCODE_LCTRL);
 					break;
 				case SDL_SCANCODE_ESCAPE:
 					keyUp(SDL_SCANCODE_ESCAPE);
@@ -398,33 +404,32 @@ void ShowPicture(char *FileName)
 void keyDown(int key) {
   switch (key) {
     case SDL_SCANCODE_UP:  // move up
-      framework_EventHandle(FW_KEYDOWN,(int) prefs->upkey);
+      framework_EventHandle(FW_KEYDOWN,KEY_UP);
       break;  // move up
     case SDL_SCANCODE_DOWN:  // move down
-      framework_EventHandle(FW_KEYDOWN,(int) prefs->downkey);
+      framework_EventHandle(FW_KEYDOWN,KEY_DOWN);
       break;
     case SDL_SCANCODE_LEFT:  // move left
-      framework_EventHandle(FW_KEYDOWN,(int) prefs->leftkey);
+      framework_EventHandle(FW_KEYDOWN,KEY_LEFT);
       break;
     case SDL_SCANCODE_RIGHT:  // move right
-      framework_EventHandle(FW_KEYDOWN,(int) prefs->rightkey);
+      framework_EventHandle(FW_KEYDOWN,KEY_RIGHT);
       break;
 	case SDL_SCANCODE_LCTRL:
-	  framework_EventHandle(FW_KEYDOWN,(int) prefs->usekey);
+	  framework_EventHandle(FW_KEYDOWN,KEY_USE);
 	  break;
     case SDL_SCANCODE_SPACE:   // fire or switch
-      framework_EventHandle(FW_KEYDOWN,(int) prefs->shootkey);
-	  framework_EventHandle(FW_KEYDOWN,(int) prefs->jumpkey);
+      framework_EventHandle(FW_KEYDOWN,KEY_SHOOT);
       break;
     case SDL_SCANCODE_ESCAPE:  // break out of level
-      framework_EventHandle(FW_KEYDOWN,(int) 'Q');
+      framework_EventHandle(FW_KEYDOWN,KEY_QUIT);
       break;
-    case SDL_SCANCODE_E:  // If editor is compiled (define in mc.cpp) then this is the key to show it
-      framework_EventHandle(FW_KEYDOWN,(int) 'E');
-      break;
-    case SDL_SCANCODE_P:  // if editor is compiled (define in mc.cpp) then this is the key to show patterns(tiles)
-      framework_EventHandle(FW_KEYDOWN,(int) 'P');
-      break;
+    //case SDL_SCANCODE_E:  // If editor is compiled (define in mc.cpp) then this is the key to show it
+    //  framework_EventHandle(FW_KEYDOWN,(int) 'E');
+    //  break;
+    //case SDL_SCANCODE_P:  // if editor is compiled (define in mc.cpp) then this is the key to show patterns(tiles)
+    //  framework_EventHandle(FW_KEYDOWN,(int) 'P');
+    //  break;
     default:
       break;
   }
@@ -433,33 +438,32 @@ void keyDown(int key) {
 void keyUp(int key) {
   switch (key) {
     case SDL_SCANCODE_UP:  // move up
-      framework_EventHandle(FW_KEYUP,(int) prefs->upkey);
+      framework_EventHandle(FW_KEYUP,KEY_UP);
       break;  // move up
     case SDL_SCANCODE_DOWN:  // move down
-      framework_EventHandle(FW_KEYUP,(int) prefs->downkey);
+      framework_EventHandle(FW_KEYUP,KEY_DOWN);
       break;
     case SDL_SCANCODE_LEFT:  // move left
-      framework_EventHandle(FW_KEYUP,(int) prefs->leftkey);
+      framework_EventHandle(FW_KEYUP,KEY_LEFT);
       break;
     case SDL_SCANCODE_RIGHT:  // move right
-      framework_EventHandle(FW_KEYUP,(int) prefs->rightkey);
+      framework_EventHandle(FW_KEYUP,KEY_RIGHT);
       break;
 	case SDL_SCANCODE_LCTRL:
-	  framework_EventHandle(FW_KEYUP,(int) prefs->usekey);
+	  framework_EventHandle(FW_KEYUP,KEY_USE);
 	  break;
     case SDL_SCANCODE_SPACE:   // fire or switch
-      framework_EventHandle(FW_KEYUP,(int) prefs->shootkey);
-	  framework_EventHandle(FW_KEYUP,(int) prefs->jumpkey);
+      framework_EventHandle(FW_KEYUP,KEY_SHOOT);
       break;
     case SDL_SCANCODE_ESCAPE:  // break out of level
-      framework_EventHandle(FW_KEYUP,(int) 'Q');
+      framework_EventHandle(FW_KEYUP,KEY_QUIT);
       break;
-    case SDL_SCANCODE_E:  // If editor is compiled (define in mc.cpp) then this is the key to show it
-      framework_EventHandle(FW_KEYUP,(int) 'E');
-      break;
-    case SDL_SCANCODE_P:  // if editor is compiled (define in mc.cpp) then this is the key to show patterns(tiles)
-      framework_EventHandle(FW_KEYUP,(int) 'P');
-      break;
+    //case SDL_SCANCODE_E:  // If editor is compiled (define in mc.cpp) then this is the key to show it
+    //  framework_EventHandle(FW_KEYUP,(int) 'E');
+    //  break;
+    //case SDL_SCANCODE_P:  // if editor is compiled (define in mc.cpp) then this is the key to show patterns(tiles)
+    //  framework_EventHandle(FW_KEYUP,(int) 'P');
+    //  break;
     default:
       break;
   }

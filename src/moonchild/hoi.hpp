@@ -83,7 +83,6 @@ struct HOI_BLOOD {
   UINT16    rightkey; /* if set we want to move right */
   UINT16    upkey;    /* if set we want to move up */
   UINT16    downkey;  /* if set we want to move down */
-  UINT16    jumpkey;  /* if set we want to jump */
   UINT16    usekey;   /* if set we want to use*/
   UINT16    shootkey; /* if set we want to shoot */
   UINT16    flashcnt; /* invincibility */

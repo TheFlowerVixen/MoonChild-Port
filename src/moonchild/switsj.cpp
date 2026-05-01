@@ -74,7 +74,7 @@ int switsj_live (OBJECT *object, UINT32 param)
         WALL_BLOOD *wallblood;
         HOI_BLOOD *hoiblood = (HOI_BLOOD *)hoi->blood;
         
-          if (usekey && switsjblood->coll==0)
+          if ((controlflg ? shootkey : usekey) && switsjblood->coll==0)
         {
             switsjblood->coll=1;
 

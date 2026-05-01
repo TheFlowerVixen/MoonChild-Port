@@ -178,7 +178,6 @@ OBJECT *hoi_globinit(ANIM *appearance, HOI_CAPS* capabilities, HOI_AI intelligen
   hoiblood->rightkey=0; /* if set we want to move right */
   hoiblood->upkey=0;    /* if set we want to move up */
   hoiblood->downkey=0;  /* if set we want to move down */
-  hoiblood->jumpkey=0;  /* if set we want to jump */
   hoiblood->usekey=0;  /* if set we want to use */
   hoiblood->shootkey=0; /* if set we want to shoot */
   hoiblood->flashcnt=0; /* invincibility */
@@ -231,7 +230,6 @@ void hoi_init(OBJECT *newhoi, UINT16 x, UINT16 y)
   hoiblood->rightkey = 0;
   hoiblood->upkey = 0;
   hoiblood->downkey = 0;
-  hoiblood->jumpkey = 0;
   hoiblood->usekey = 0;
   hoiblood->shootkey = 0;
 //  hoiblood->flashcnt = 0;     this one not
@@ -285,7 +283,6 @@ void hoi_fly_init(OBJECT *newhoi, UINT16 x, UINT16 y)
   hoiblood->rightkey = 0;
   hoiblood->upkey = 0;
   hoiblood->downkey = 0;
-  hoiblood->jumpkey = 0;
   hoiblood->usekey = 0;
   hoiblood->shootkey = 0;
 //  hoiblood->flashcnt = 0;   this one not!!!
@@ -329,7 +326,6 @@ UINT16 hoi_ai(OBJECT *object)
       if (mc_autorun == -1) hoiblood->leftkey  = 1;
       hoiblood->upkey = 0;
       hoiblood->downkey = 0;
-      hoiblood->jumpkey = 0;
       hoiblood->usekey = 0;
       hoiblood->shootkey = 0;
     }
@@ -339,7 +335,6 @@ UINT16 hoi_ai(OBJECT *object)
       hoiblood->rightkey = rightkey;
       hoiblood->upkey = upkey;
       hoiblood->downkey = downkey;
-      hoiblood->jumpkey = jumpkey;
       hoiblood->usekey = usekey;
       hoiblood->shootkey = shootkey;
     }
@@ -571,19 +566,21 @@ UINT16 helmut_ai(OBJECT *object)
   helmut = hoiblood->pal;
   delaypos = (UINT16 *) helmut->blood;
 
+  UINT16* key = controlflg ? &hoiblood->upkey : &hoiblood->usekey;
+
   if (object->y < hoi->y+170 && object->y > hoi->y+70 && hoi->x < object->x+60 && hoi->x > object->x-60)
     {
       delaypos[8]++;
-      hoiblood->jumpkey = 0;
+      *key = 0;
       if (delaypos[8]>50)
 	{
-	  hoiblood->jumpkey = 1;
+	  *key = 1;
 	}
     }
   else
     {
       delaypos[8] = 0;
-      hoiblood->jumpkey = 0;
+      *key = 0;
     }
 
   if (object->y < hoi->y-10 && object->y > hoi->y-70 && hoi->x < object->x+60 && hoi->x > object->x-60)
@@ -642,27 +639,28 @@ UINT16 helmut2_ai(OBJECT *object)
   helmut = hoiblood->pal;
   delaypos = (UINT16 *) helmut->blood;
 
+  UINT16* key = controlflg ? &hoiblood->upkey : &hoiblood->usekey;
 
   if (object->y < hoi->y+170 && object->y > hoi->y+70 && hoi->x < object->x+60 && hoi->x > object->x-60)
     {
       delaypos[8]++;
-      hoiblood->jumpkey = 0;
+      *key = 0;
       if (delaypos[8]>50)
 	{
-	  hoiblood->jumpkey = 1;
+	  *key = 1;
 	}
     }
   else
     {
       delaypos[8] = 0;
-      hoiblood->jumpkey = 0;
+      *key = 0;
     }
 
   if (hoiblood->onfloor > 0 && hoiblood->onfloor < 8)
     {
       if (hoi->y - 20 < object->y)
 	{
-	  hoiblood->jumpkey = 1;
+	  *key = 1;
 	}
     }
   
@@ -1155,8 +1153,11 @@ int hoi_live (OBJECT *object, UINT32 param)
   if(hoiblood->onobject) hoiblood->floor = 2;
   hoiblood->onobject = 0;
   /* handle jump */
+  
+  UINT16 jumpkey = controlflg ? hoiblood->upkey : hoiblood->shootkey;
+  UINT16 usekey = controlflg ? hoiblood->shootkey : hoiblood->usekey;
 
-  if (hoiblood->jumpkey)
+  if (controlflg ? hoiblood->upkey : hoiblood->shootkey)
     {
       hoiblood->idlecnt = 0;
       if (hoiblood->onfloor)
@@ -1166,12 +1167,12 @@ int hoi_live (OBJECT *object, UINT32 param)
     }
 
 
-  if (hoiblood->usekey)
+  if (controlflg ? hoiblood->shootkey : hoiblood->usekey)
     {
       if (world == 3 && paraflg == 7)   // (level 4 ... big boss is busy)
 	{
 	  hoiblood->idlecnt = 0;
-	  keytab[prefs->usekey] = 0;
+	  keytab[controlflg ? KEY_SHOOT : KEY_USE] = 0;
 	  if (!hoiblood->kneelcnt)
 	    {
 	      bouncey_init(object->x+20, object->y+20, -(hoiblood->lastdirx)*108 ,-68);
@@ -2773,6 +2774,7 @@ endcheckx:
   if (hoiblood->shootkey && temp <12 && shootenabledflg == 1)
     {
       hoiblood->shootkey = 0;
+      keytab[KEY_SHOOT] = 0;
       bullet_init(object->x+shootadd[temp], object->y+shootadd[temp+1], (hoiblood->lastdirx < 0) ? -2848+hoiblood->xspd : 2848+hoiblood->xspd, 0);
       play_shoot(object->x, object->y);
       if (hoiblood->lastdirx < 0)

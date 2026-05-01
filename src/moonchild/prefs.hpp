@@ -17,13 +17,14 @@ struct PREFS
   UINT16 screenwidth;
   UINT16 screenheight;
   UINT16 reso;
+#if !(defined(PLATFORM_WII) || defined(PLATFORM_N64))
   UINT16 leftkey;
   UINT16 rightkey;
   UINT16 upkey;
   UINT16 downkey;
-  UINT16 jumpkey;
   UINT16 usekey;
   UINT16 shootkey;
+#endif
 };
 
 

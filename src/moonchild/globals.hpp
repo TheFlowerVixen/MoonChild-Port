@@ -1,8 +1,23 @@
+#ifndef _GLOBALS_HPP
+#define _GLOBALS_HPP
+
 #include "../framewrk/frm_wrk.hpp"
 #include "vgdll.hpp"
 #include "mc.hpp"
 
 /* Various variables */
+
+enum Key
+{
+    KEY_UP,
+    KEY_DOWN,
+    KEY_LEFT,
+    KEY_RIGHT,
+    KEY_SHOOT,
+    KEY_USE,
+    KEY_QUIT,
+    KEY_COUNT
+};
 
 extern Cvideo *video;
 extern Caudio *audio;
@@ -78,6 +93,7 @@ extern UINT16    vgaflg;
 extern UINT16    animsflg;
 extern UINT16    musicflg;
 extern UINT16    sfxflg;
+extern UINT16    controlflg;
 extern UINT16    autoscrollspd;  // if something else than 0 the level scrolls with this speed
 extern UINT16    oldcolumnr;
 extern UINT16    lastcolumnr;
@@ -109,14 +125,14 @@ extern OBJECT   *soko2;
 extern OBJECT   *soko3;
 extern OBJECT   *soko4;
 extern OBJECT   *boss;     // end of level boss
-extern char      keytab[256];
+extern UINT8     keytab[KEY_COUNT];
 extern UINT8     leftkey;
 extern UINT8     rightkey;
 extern UINT8     upkey;
 extern UINT8     downkey;
-extern UINT8     jumpkey;
 extern UINT8     usekey;
 extern UINT8     shootkey;
+extern UINT8     quitkey;
 extern UINT16    slowmode;
 extern UINT16    fallspeed;
 extern UINT16    fakespeedadd;
@@ -272,12 +288,4 @@ extern UINT16 level;
 
 extern LEVEL_DESCR levels[5][4];
 
-#define VK_LEFT 'A'
-#define VK_RIGHT 'D'
-#define VK_UP 'W'
-#define VK_DOWN 'S'
-#define VK_ESCAPE 'Q'
-#define VK_RETURN 'R'
-#define VK_SPACE ' '
-#define VK_CONTROL 0x11
-
+#endif // _GLOBALS_HPP

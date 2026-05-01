@@ -142,5 +142,7 @@ int main(int argc, char **argv)
 	shutdownVideo();
 	shutdownSystem();
 
+	framework_ExitGame();
+
 	return 0;
 }

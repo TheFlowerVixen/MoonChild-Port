@@ -45,29 +45,39 @@ bool pollEvents()
     butReleased = joypad_get_buttons_released(JOYPAD_PORT_1);
 
     if (butPressed.d_up)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->upkey);
+        framework_EventHandle(FW_KEYDOWN, KEY_UP);
     if (butReleased.d_up)
-        framework_EventHandle(FW_KEYUP, (int)prefs->upkey);
+        framework_EventHandle(FW_KEYUP, KEY_UP);
     
     if (butPressed.d_down)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->downkey);
+        framework_EventHandle(FW_KEYDOWN, KEY_DOWN);
     if (butReleased.d_down)
-        framework_EventHandle(FW_KEYUP, (int)prefs->downkey);
+        framework_EventHandle(FW_KEYUP, KEY_DOWN);
     
     if (butPressed.d_left)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->leftkey);
+        framework_EventHandle(FW_KEYDOWN, KEY_LEFT);
     if (butReleased.d_left)
-        framework_EventHandle(FW_KEYUP, (int)prefs->leftkey);
+        framework_EventHandle(FW_KEYUP, KEY_LEFT);
     
     if (butPressed.d_right)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->rightkey);
+        framework_EventHandle(FW_KEYDOWN, KEY_RIGHT);
     if (butReleased.d_right)
-        framework_EventHandle(FW_KEYUP, (int)prefs->rightkey);
+        framework_EventHandle(FW_KEYUP, KEY_RIGHT);
 
     if (butPressed.a)
-        framework_EventHandle(FW_KEYDOWN, (int)prefs->shootkey);
+        framework_EventHandle(FW_KEYDOWN, KEY_SHOOT);
     if (butReleased.a)
-        framework_EventHandle(FW_KEYUP, (int)prefs->shootkey);
+        framework_EventHandle(FW_KEYUP, KEY_SHOOT);
+
+	if (butPressed.b)
+        framework_EventHandle(FW_KEYDOWN, KEY_USE);
+    if (butReleased.b)
+        framework_EventHandle(FW_KEYUP, KEY_USE);
+
+	if (butPressed.start)
+        framework_EventHandle(FW_KEYDOWN, KEY_QUIT);
+    if (butReleased.start)
+        framework_EventHandle(FW_KEYUP, KEY_QUIT);
 	
 	return false;
 }

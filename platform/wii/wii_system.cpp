@@ -1,9 +1,11 @@
 #include "platform_system.h"
 
 #include <ogcsys.h>
+#include <ogc/system.h>
 #include <fat.h>
 #include <wiiuse/wpad.h>
 #include <gccore.h>
+#include <cstdlib>
 #include <cstdio>
 #include <unistd.h>
 #include <dirent.h>
@@ -13,11 +15,13 @@
 #include "moonchild/globals.hpp"
 #include "moonchild/prefs.hpp"
 
-#define STICK_DEADZONE 32
+#include "macro.h"
 
-char launchPath[64];
+static constexpr s32 STICK_DEADZONE = 32;
 
-MoviePlayer *moviePlayer;
+char launchPath[64] = {0};
+
+MoviePlayer *moviePlayer = NULL;
 
 class CSystem {
 public:
@@ -135,16 +139,16 @@ void CSystem::doInit(int argc, char **argv) {
 	// Get launch directory
 	if (argc > 0 && argv && argv[0]) {
 		char *slash = strrchr(argv[0], '/');
-		if (slash) {
+		if (slash != NULL) {
 			// Verify assets path exists
-			static char launchDirTemp[64];
-			static char assetsDirTemp[80];
+			char launchDirTemp[64];
+			char assetsDirTemp[80];
 
 			strncpy(launchDirTemp, argv[0], slash - argv[0] + 1);
 			sprintf(assetsDirTemp, "%sassets/", launchDirTemp);
 
-			DIR* dir = opendir(assetsDirTemp);
-			if (dir) {
+			DIR *dir = opendir(assetsDirTemp);
+			if (dir != NULL) {
 				strcpy(launchPath, launchDirTemp);
 				closedir(dir);
 			}
@@ -152,7 +156,7 @@ void CSystem::doInit(int argc, char **argv) {
 	}
 
 	// Fallback path
-	if (!launchPath[0]) {
+	if (launchPath[0] == '\0') {
 		strcpy(launchPath, "/moonchild_");
 	}
 

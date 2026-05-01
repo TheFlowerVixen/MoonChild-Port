@@ -124,7 +124,12 @@ void CVideo::doInit(void) {
     setupMoonChild();
 }
 
-void CVideo::doShutdown(void) {}
+void CVideo::doShutdown(void) {
+    VIDEO_SetBlack(TRUE);
+    VIDEO_Flush();
+    VIDEO_WaitVSync();
+    VIDEO_WaitVSync();
+}
 
 void CVideo::doDraw(void) {
     syncMoonChild();

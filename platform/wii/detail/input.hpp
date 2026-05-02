@@ -1,5 +1,5 @@
-#ifndef _INCLUDE_HPP
-#define _INCLUDE_HPP
+#ifndef _WII_DETAIL_INPUT_HPP
+#define _WII_DETAIL_INPUT_HPP
 
 #include <gccore.h>
 #include <wiiuse/wpad.h>

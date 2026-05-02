@@ -27,7 +27,7 @@ extern int g_MouseYDown;
 int	  FirstTimeShowCredzFlg;
 
 
-#define LOG(x)
+#define LOG(x) CMN_DEBUG_LOG("[LOG] %s\n", x);
 
 
 // if defined start level immediately
@@ -454,6 +454,7 @@ UINT16 swirlextrax;
 UINT16 swirlx;
 UINT16 swirly;
 UINT16 swirlrot;
+UINT16 swirlyadd;
 INT16 swirlrotspd;
 INT16 swirlrotspd2;
 INT16 swirlrotlock;
@@ -537,12 +538,12 @@ char *controlatxt  = "+CONTROL SCHEME: A  ";
 char *controlbtxt  = "+CONTROL SCHEME: B  ";
 
 #if defined(PLATFORM_WII)
-char *jumpbuttonatxt = "      JUMP: 2       ";
+char *jumpbuttonatxt = "+   JUMP: 2 / A     ";
 char *jumpbuttonbtxt = "      JUMP: UP      ";
-char *usebuttonatxt =  "       USE: 1       ";
-char *usebuttonbtxt =  "       USE: 2       ";
+char *usebuttonatxt =  "     USE: 1 / B     ";
+char *usebuttonbtxt =  "     USE: 2 / A     ";
 #elif defined(PLATFORM_N64)
-char *jumpbuttonatxt = "      JUMP: A       ";
+char *jumpbuttonatxt = "+     JUMP: A       ";
 char *jumpbuttonbtxt = "      JUMP: UP      ";
 char *usebuttonatxt =  "       USE: B       ";
 char *usebuttonbtxt =  "       USE: A       ";
@@ -997,7 +998,7 @@ void save_options(void)
   optsavebuf[3] = sfxflg;
   optsavebuf[4] = controlflg;
   
-  savefile("mc_opts.dat", (char *) optsavebuf, 10);
+  savedocfile("mc_opts.dat", (char *) optsavebuf, 10);
 
 }
 
@@ -1046,6 +1047,18 @@ void load_options(void)
     else
     {
       menu122[1].menutext = animsofftxt;
+    }
+    if (controlflg)
+    {
+      menu121[0].menutext = controlbtxt;
+      menu121[1].menutext = jumpbuttonbtxt;
+      menu121[2].menutext = usebuttonbtxt;
+    }
+    else
+    {
+      menu121[0].menutext = controlatxt;
+      menu121[1].menutext = jumpbuttonatxt;
+      menu121[2].menutext = usebuttonatxt;
     }
 
   }
@@ -1190,7 +1203,7 @@ int enablefastfile(void)
 {
   int rc;
   char *debug = FullPath("mc.art");
-  fprintf(stderr, "debug: %s\r\n", debug);
+  CMN_DEBUG_LOG("[DEBUG] %s\n", debug);
   rc = FastFileInit(FullPath("mc.art"),16);
   if (!rc)
     {
@@ -4966,7 +4979,7 @@ void anim_init(void)
   
 	if (!asset_parse(FullPath(levels[world][level].descr)))
     {
-      printf("Error parsing level definition file\n");
+      log_out("Error parsing level definition file");
       exit(0);
     }
 }
@@ -6199,7 +6212,7 @@ VG_BOOLEAN loaddocfile(char * fname, char *buffer, UINT32 length)
     fp = fopen(FullWritablePath(fname), "rb");
     if (!fp)
     {
-      printf("couldn't open %s for reading\n", fname);
+      CMN_DEBUG_LOG("[DEBUG] couldn't open %s for reading\n", fname);
         return VG_FALSE;
     }
     
@@ -6218,7 +6231,7 @@ VG_BOOLEAN savedocfile(char * fname, char *buffer, UINT32 length)
     fp = fopen(FullWritablePath(fname), "wb");
     if (!fp)
     {
-      printf("couldn't open %s for writing\n", fname);
+      CMN_DEBUG_LOG("[DEBUG] couldn't open %s for writing\n", fname);
         return VG_FALSE;
     }
     
@@ -6805,11 +6818,11 @@ HEARTBEAT_FN MC_titlesequence1(void)
       {
         if (i == cheatcode[cheatprogress])
         {
-          printf("cheat code progress %d\n", cheatprogress);
+          CMN_DEBUG_LOG("[DEBUG] cheat code progress %d\n", cheatprogress);
           cheatprogress++;
           if (cheatprogress == 10)
           {
-            printf("cheat code successful\n");
+            CMN_DEBUG_LOG("[DEBUG] cheat code successful\n");
 
             //cheat code
             maxlevel = 12;
@@ -6825,7 +6838,7 @@ HEARTBEAT_FN MC_titlesequence1(void)
         }
         else
         {
-          printf("cheat code fail\n");
+          CMN_DEBUG_LOG("[DEBUG] cheat code fail\n");
           cheatprogress = 0;
         }
 
@@ -6884,9 +6897,11 @@ HEARTBEAT_FN MC_showoptions(void)
   swirlrotspd  = 0;
   swirlrotspd2 = 0x0200;
   swirlrotlock = 1;
+  swirlyadd = 32;
 
   swirlinpoint = optionstext;
   letterswirlreset();
+  swirly = 0;
 
   keyquery = 0;
 
@@ -6910,6 +6925,7 @@ HEARTBEAT_FN MC_options(void)
     {
       menupoint = menu1;
       menuitem = 0;
+      MC_buildmenu();
       return (HEARTBEAT_FN) MC_menu;
     }
 
@@ -6930,7 +6946,7 @@ HEARTBEAT_FN MC_menu(void)
 
   if (musicstoppedflg) start_cd();   // did the music stop when we where IN the menu??
 
-  if (quitkey)
+  if (quitkey || usekey)
   {
     if (menupoint == menu1)
 	{
@@ -7301,10 +7317,12 @@ void menuf1231(void)
 
   if (musicflg)
     {
+      start_cd();
       menu123[0].menutext = musicontxt;
     }
   else
     {
+      stop_cd();
       menu123[0].menutext = musicofftxt;
     }
   menuleavefunc = (HEARTBEAT_FN) MC_buildmenu;
@@ -7552,6 +7570,7 @@ HEARTBEAT_FN MC_showcredz1(void)
   swirlrotlock = 0;
   swirlrotspd  = 8;
   swirlrotspd2 = 0x0200;
+  swirlyadd = 36;
 
   swirlinpoint = credstext;
   letterswirlreset();
@@ -7699,6 +7718,7 @@ HEARTBEAT_FN MC_showhighscore(void)
 
   swirlrotspd  = 4;
   swirlrotspd2 = 0x0100;
+  swirlyadd = 36;
 
   swirlinpoint = hightext;
   letterswirlreset();
@@ -7843,6 +7863,7 @@ HEARTBEAT_FN MC_showcredz2(void)
 
   swirlrotspd  = 8;
   swirlrotspd2 = (unsigned short) 0xfe00;
+  swirlyadd = 36;
 
   swirlinpoint = creds2text;
   letterswirlreset();
@@ -7956,6 +7977,7 @@ HEARTBEAT_FN MC_showcredz3(void)
 
   swirlrotspd  = -4;
   swirlrotspd2 = (unsigned short) 0xff00;
+  swirlyadd = 36;
 
   swirlinpoint = creds3text;
   letterswirlreset();
@@ -8037,6 +8059,7 @@ HEARTBEAT_FN MC_showcredz4(void)
 
   swirlrotspd  = -2;
   swirlrotspd2 = (unsigned short) 0xff00;
+  swirlyadd = 36;
 
   swirlinpoint = creds4text;
   letterswirlreset();
@@ -8178,7 +8201,7 @@ skipspace:
         if (swirlx == 640)
     {
       swirlx = 0;
-      swirly += 36;  //32
+      swirly += swirlyadd;  //32
     }
       }
   }
@@ -8191,7 +8214,7 @@ skipspace:
     if (swirlx == 640)
       {
         swirlx = 0;
-        swirly += 36;  //32
+        swirly += swirlyadd;  //32
       }
     goto skipspace;
   }
@@ -8203,7 +8226,7 @@ skipspace:
     if (swirlx == 640)
       {
         swirlx = 0;
-        swirly += 36;    //32
+        swirly += swirlyadd;    //32
       }
     goto skipspace;
   }
@@ -8551,7 +8574,7 @@ HEARTBEAT_FN MC_puzzleselect(void)
     }
 
 
-  if (quitkey)
+  if (quitkey || usekey)
   {
       return (HEARTBEAT_FN) MC_abortpuzzle;
   }  
@@ -8603,7 +8626,7 @@ HEARTBEAT_FN MC_puzzleshow(void)
       return (HEARTBEAT_FN) MC_endpuzzle;
     }
 
-  if (quitkey)
+  if (quitkey || usekey)
   {
       return (HEARTBEAT_FN) MC_abortpuzzle;
   }  

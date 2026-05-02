@@ -23,8 +23,19 @@
     if (!(condition)) { printf("[CMN_ASSERT] Assertion failed: " #condition "\n"); for (;;); }  \
 } while (0)
 
+#ifdef LOG_FILE
+
+// This is probably the stupidest way of writing to a log file but it's the only way I tried that works
 #define CMN_DEBUG_LOG(...) do { \
+    FILE* logFile = fopen("/mc_log.txt", "a"); \
+    if (logFile) { fprintf(logFile, __VA_ARGS__); fclose(logFile); } \
     printf(__VA_ARGS__); \
 } while (0)
+
+#else
+
+#define CMN_DEBUG_LOG(...) printf(__VA_ARGS__);
+
+#endif
 
 #endif // MACRO_H

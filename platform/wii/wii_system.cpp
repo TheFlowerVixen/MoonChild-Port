@@ -101,19 +101,8 @@ void CSystem::doInit(int argc, char **argv) {
 	if (argc > 0 && argv && argv[0]) {
 		char *slash = strrchr(argv[0], '/');
 		if (slash != NULL) {
-			// Verify assets path exists
-			char launchDirTemp[64];
-			char assetsDirTemp[80];
-
-			strncpy(launchDirTemp, argv[0], slash - argv[0] + 1);
-			sprintf(assetsDirTemp, "%sassets/", launchDirTemp);
-
-			DIR *dir = opendir(assetsDirTemp);
-			if (dir != NULL) {
-				hasLaunchPath = true;
-				strcpy(launchPath, launchDirTemp);
-				closedir(dir);
-			}
+			hasLaunchPath = true;
+			strncpy(launchPath, argv[0], slash - argv[0] + 1);
 		}
 	}
 
@@ -240,7 +229,12 @@ char *FullWritablePath(char *filename) {
 	}
 
 	static char buffer[128];
-	snprintf(buffer, sizeof(buffer), "/%s", filename);
+	if (hasLaunchPath) {
+		sprintf(buffer, "%s%s", launchPath, filename);
+	}
+	else {
+		sprintf(buffer, "/%s", filename);
+	}
 	return buffer;
 }
 

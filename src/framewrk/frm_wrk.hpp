@@ -26,6 +26,8 @@
 #include "movie.hpp"
 #include "fastfile.h"
 
+#include "macro.h"
+
 #define FW_KEYUP       (0)
 #define FW_KEYDOWN     (1)
 #define FW_LBUTTONDOWN (2)
@@ -51,8 +53,7 @@ typedef void * (*HEARTBEAT_FN )(void);
 extern int g_MouseXCurrent;
 extern int g_MouseYCurrent;
 
-
-#define log_out(x) fprintf(stderr, "debug: %s\r\n", x);
+#define log_out(x) CMN_DEBUG_LOG("[log_out] %s\n", x);
 
 #endif
 

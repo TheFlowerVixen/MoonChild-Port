@@ -96,14 +96,14 @@ int main(int argc, char **argv)
 {
 	if (!initSystem(argc, argv))
 	{
-		CMN_DEBUG_LOG("[main] failed to initialize system subsystem");
+		CMN_DEBUG_LOG("[main] failed to initialize system subsystem\n");
 		shutdownSystem();
 		return 1;
 	}
 
 	if (!initVideo(argc, argv))
 	{
-		CMN_DEBUG_LOG("[main] failed to initialize video subsystem");
+		CMN_DEBUG_LOG("[main] failed to initialize video subsystem\n");
 		shutdownVideo();
 		shutdownSystem();
 		return 1;
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
 
 	if (!initAudio(argc, argv))
 	{
-		CMN_DEBUG_LOG("[main] failed to initialize audio subsystem");
+		CMN_DEBUG_LOG("[main] failed to initialize audio subsystem\n");
 		shutdownAudio();
 		shutdownVideo();
 		shutdownSystem();

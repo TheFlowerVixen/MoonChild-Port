@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include <dirent.h>
+#include <math.h>
 
 #include "framewrk/frm_int.hpp"
 #include "moonchild/mc.hpp"
@@ -95,6 +96,7 @@ private:
 	s8 mGCAxisX;
 	s8 mGCAxisY;
 	u32 mGCAxisFlags;
+	u32 mClassicButtonsLast;
 
 	bool mShutdownFlag;
 	bool mResetFlag;
@@ -128,6 +130,8 @@ void CSystem::doInit(int argc, char **argv) {
 
 	WPAD_Init();
     WPAD_SetDataFormat(0, WPAD_FMT_BTNS_ACC_IR);
+
+	mClassicButtonsLast = 0;
 
 	mShutdownFlag = false;
 	mResetFlag = false;
@@ -173,6 +177,20 @@ void CSystem::doShutdown(void) {
 	}
 }
 
+static f32 calcClassicStick(const joystick_t *joystick, bool axisY) {
+	f32 angle = 3.1415926535f * joystick->ang / 180.0f;
+
+	f32 magnitude = joystick->mag;
+	if (magnitude < -1.0f) {
+		magnitude = -1.0f;
+	}
+	else if (magnitude > 1.0f) {
+		magnitude = 1.0f;
+	}
+
+	return magnitude * (axisY ? cosf(angle) : sinf(angle));
+}
+
 bool CSystem::doCalc(void) {
 	PAD_ScanPads();
 
@@ -187,6 +205,74 @@ bool CSystem::doCalc(void) {
 	mWiiButtonsDown = WPAD_ButtonsDown(0);
     mWiiButtonsUp = WPAD_ButtonsUp(0);
     mWiiButtonsHeld = WPAD_ButtonsHeld(0);
+
+	expansion_t wpadExtension;
+	WPAD_Expansion(0, &wpadExtension);
+
+	switch (wpadExtension.type) {
+	case EXP_CLASSIC: {
+		classic_ctrl_t classic = wpadExtension.classic;
+	
+		if (classic.ljs.mag != 0.0f) {
+			f32 axisX = calcClassicStick(&classic.ljs, false);
+			f32 axisY = calcClassicStick(&classic.ljs, true);
+
+			axisX *= 128.0f;
+			axisY *= 128.0f;
+
+			if (axisX > 127.0f) {
+				axisX = 127.0f;
+			}
+			if (axisY > 127.0f) {
+				axisY = 127.0f;
+			}
+
+			// TODO: Come up with a better solution that's not hijacking the GC axis ..
+			mGCAxisX = (u8)axisX;
+			mGCAxisY = (u8)axisY;
+		}
+
+		static const u32 buttonMapping[][2] = {
+			{ CLASSIC_CTRL_BUTTON_A, WPAD_BUTTON_2 },
+			{ CLASSIC_CTRL_BUTTON_B, WPAD_BUTTON_1 },
+			{ CLASSIC_CTRL_BUTTON_DOWN, WPAD_BUTTON_LEFT },
+			{ CLASSIC_CTRL_BUTTON_UP, WPAD_BUTTON_RIGHT },
+			{ CLASSIC_CTRL_BUTTON_RIGHT, WPAD_BUTTON_DOWN },
+			{ CLASSIC_CTRL_BUTTON_LEFT, WPAD_BUTTON_UP },
+			{ CLASSIC_CTRL_BUTTON_HOME, WPAD_BUTTON_PLUS },
+			{ CLASSIC_CTRL_BUTTON_HOME, WPAD_BUTTON_HOME },
+		};
+
+		/*
+		 * LIBOGC is bugged; the classic controller button state (besides btns) is extremely
+		 * unreliable, so we need to maintain some external state (mClassicButtonsLast) to
+		 * keep things from going haywire
+		 */
+
+		for (u32 i = 0; i < (sizeof(buttonMapping) / sizeof(buttonMapping[0])); i++) {
+			u32 classicBit = buttonMapping[i][0];
+			u32 wpadBit = buttonMapping[i][1];
+
+			if ((classic.btns & classicBit) != 0) {
+				if ((mClassicButtonsLast & classicBit) == 0) {
+					mWiiButtonsDown |= wpadBit;
+				}
+				else {
+					mWiiButtonsHeld |= wpadBit;
+				}
+			}
+			else if (((mClassicButtonsLast & classicBit) != 0) && ((classic.btns & classicBit) == 0)) {
+				mWiiButtonsUp |= wpadBit;
+			}
+		}
+
+		mClassicButtonsLast = classic.btns;
+	} break;
+
+	case EXP_NONE:
+	default:
+		break;
+	}
 
 	if ((mWiiButtonsDown & WPAD_BUTTON_HOME) != 0) {
 		return true;

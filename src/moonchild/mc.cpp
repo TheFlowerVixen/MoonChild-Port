@@ -693,14 +693,14 @@ char creds3text[] = // "--------------------"
 "=     WII PORT      "
 "                    "
 "=  IMPLEMENTATION   "
-"=    COHNLEE.NL     "
+"=    CONHLEE.NL     "
 "                    "
 "=    PORT SETUP     "
 "=  THEFLOWERVIXEN   "
 "                    "
 "=   HOUSEKEEPING    "
 "=  THEFLOWERVIXEN   "
-"=    COHNLEE.NL     "
+"=    CONHLEE.NL     "
 "                   @";
 
 #elif defined(PLATFORM_N64)
@@ -718,7 +718,7 @@ char creds3text[] = // "--------------------"
 "                    "
 "=   HOUSEKEEPING    "
 "=  THEFLOWERVIXEN   "
-"=    COHNLEE.NL     "
+"=    CONHLEE.NL     "
 "                   @";
 
 #else
@@ -736,7 +736,7 @@ char creds3text[] = // "--------------------"
 "                    "
 "=   HOUSEKEEPING    "
 "=  THEFLOWERVIXEN   "
-"=    COHNLEE.NL     "
+"=    CONHLEE.NL     "
 "                   @";
 
 #endif

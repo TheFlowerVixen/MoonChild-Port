@@ -15,11 +15,11 @@
 #include "moonchild/mc.hpp"
 #include "moonchild/globals.hpp"
 #include "moonchild/prefs.hpp"
+#include "detail/input.hpp"
 
 #include "macro.h"
 
-static constexpr s32 STICK_DEADZONE = 32;
-
+bool hasLaunchPath = false;
 char launchPath[64] = {0};
 
 MoviePlayer *moviePlayer = NULL;
@@ -44,60 +44,15 @@ private:
 	void setupMoonChild(void);
     void updateMoonChild(void);
 
-	void moonChildSubmitKey(u32 gcButton, u32 wiiButton, s32 key) {
-		if ((mWiiButtonsDown & wiiButton) == wiiButton) {
-			framework_EventHandle(FW_KEYDOWN, key);
-		}
-		else if ((mWiiButtonsUp & wiiButton) == wiiButton) {
-			framework_EventHandle(FW_KEYUP, key);
-		}
-		if ((mGCButtonsDown & gcButton) == gcButton) {
-			framework_EventHandle(FW_KEYDOWN, key);
-		}
-		else if ((mGCButtonsUp & gcButton) == gcButton) {
-			framework_EventHandle(FW_KEYUP, key);
-		}
-	}
-
-	void moonChildCalcGCAxis(s8 axis, u32 negativeButton, u32 positiveButton, s32 negativeKey, s32 positiveKey) {
-		// This could definitely be done a little better :P
-		if (axis <= -STICK_DEADZONE || axis >= STICK_DEADZONE) {
-			if (axis <= -STICK_DEADZONE && !(mGCAxisFlags & negativeButton)) {
-				framework_EventHandle(FW_KEYDOWN, negativeKey);
-				mGCAxisFlags |= negativeButton;
-			}
-			if (axis >= STICK_DEADZONE && !(mGCAxisFlags & positiveButton)) {
-				framework_EventHandle(FW_KEYDOWN, positiveKey);
-				mGCAxisFlags |= positiveButton;
-			}
-		}
-		else {
-			if ((mGCAxisFlags & negativeButton) == negativeButton) {
-				framework_EventHandle(FW_KEYUP, negativeKey);
-			}
-			else if ((mGCAxisFlags & positiveButton) == positiveButton) {
-				framework_EventHandle(FW_KEYUP, positiveKey);
-			}
-			mGCAxisFlags &= ~(negativeButton | positiveButton);
-		}
-	}
+	CInputWiimote *mWiimoteInput;
+	CInputGC *mGCInput;
+	CInputClassic *mClassicInput;
 
 	static void sysPowerCallback(void);
 	static void sysResetCallback(u32 irq, void *ctx);
 	static void wpadPowerCallback(s32 chan);
 
 private:
-	u32 mWiiButtonsDown;
-	u32 mWiiButtonsUp;
-	u32 mWiiButtonsHeld;
-	u32 mGCButtonsDown;
-	u32 mGCButtonsUp;
-	u32 mGCButtonsHeld;
-	s8 mGCAxisX;
-	s8 mGCAxisY;
-	u32 mGCAxisFlags;
-	u32 mClassicButtonsLast;
-
 	bool mShutdownFlag;
 	bool mResetFlag;
 };
@@ -131,7 +86,9 @@ void CSystem::doInit(int argc, char **argv) {
 	WPAD_Init();
     WPAD_SetDataFormat(0, WPAD_FMT_BTNS_ACC_IR);
 
-	mClassicButtonsLast = 0;
+	mWiimoteInput = new CInputWiimote(0);
+	mGCInput = new CInputGC(0);
+	mClassicInput = new CInputClassic(0);
 
 	mShutdownFlag = false;
 	mResetFlag = false;
@@ -153,15 +110,11 @@ void CSystem::doInit(int argc, char **argv) {
 
 			DIR *dir = opendir(assetsDirTemp);
 			if (dir != NULL) {
+				hasLaunchPath = true;
 				strcpy(launchPath, launchDirTemp);
 				closedir(dir);
 			}
 		}
-	}
-
-	// Fallback path
-	if (launchPath[0] == '\0') {
-		strcpy(launchPath, "/moonchild_");
 	}
 
 	setupMoonChild();
@@ -170,6 +123,10 @@ void CSystem::doInit(int argc, char **argv) {
 void CSystem::doShutdown(void) {
 	WPAD_Shutdown();
 
+	delete mWiimoteInput;
+	delete mGCInput;
+	delete mClassicInput;
+
 	if (mShutdownFlag) {
 		framework_ExitGame();
 		SYS_ResetSystem(SYS_POWEROFF, 0, 0);
@@ -177,107 +134,17 @@ void CSystem::doShutdown(void) {
 	}
 }
 
-static f32 calcClassicStick(const joystick_t *joystick, bool axisY) {
-	f32 angle = 3.1415926535f * joystick->ang / 180.0f;
-
-	f32 magnitude = joystick->mag;
-	if (magnitude < -1.0f) {
-		magnitude = -1.0f;
-	}
-	else if (magnitude > 1.0f) {
-		magnitude = 1.0f;
-	}
-
-	return magnitude * (axisY ? cosf(angle) : sinf(angle));
-}
-
 bool CSystem::doCalc(void) {
 	PAD_ScanPads();
-
-	mGCButtonsDown = PAD_ButtonsDown(0);
-	mGCButtonsUp = PAD_ButtonsUp(0);
-	mGCButtonsHeld = PAD_ButtonsHeld(0);
-	mGCAxisX = PAD_StickX(0);
-	mGCAxisY = PAD_StickY(0);
-
 	WPAD_ScanPads();
 
-	mWiiButtonsDown = WPAD_ButtonsDown(0);
-    mWiiButtonsUp = WPAD_ButtonsUp(0);
-    mWiiButtonsHeld = WPAD_ButtonsHeld(0);
+	mWiimoteInput->calculate();
+	mGCInput->calculate();
+	mClassicInput->calculate();
 
-	expansion_t wpadExtension;
-	WPAD_Expansion(0, &wpadExtension);
-
-	switch (wpadExtension.type) {
-	case EXP_CLASSIC: {
-		classic_ctrl_t classic = wpadExtension.classic;
-	
-		if (classic.ljs.mag != 0.0f) {
-			f32 axisX = calcClassicStick(&classic.ljs, false);
-			f32 axisY = calcClassicStick(&classic.ljs, true);
-
-			axisX *= 128.0f;
-			axisY *= 128.0f;
-
-			if (axisX > 127.0f) {
-				axisX = 127.0f;
-			}
-			if (axisY > 127.0f) {
-				axisY = 127.0f;
-			}
-
-			// TODO: Come up with a better solution that's not hijacking the GC axis ..
-			mGCAxisX = (u8)axisX;
-			mGCAxisY = (u8)axisY;
-		}
-
-		static const u32 buttonMapping[][2] = {
-			{ CLASSIC_CTRL_BUTTON_A, WPAD_BUTTON_2 },
-			{ CLASSIC_CTRL_BUTTON_B, WPAD_BUTTON_1 },
-			{ CLASSIC_CTRL_BUTTON_DOWN, WPAD_BUTTON_LEFT },
-			{ CLASSIC_CTRL_BUTTON_UP, WPAD_BUTTON_RIGHT },
-			{ CLASSIC_CTRL_BUTTON_RIGHT, WPAD_BUTTON_DOWN },
-			{ CLASSIC_CTRL_BUTTON_LEFT, WPAD_BUTTON_UP },
-			{ CLASSIC_CTRL_BUTTON_HOME, WPAD_BUTTON_PLUS },
-			{ CLASSIC_CTRL_BUTTON_HOME, WPAD_BUTTON_HOME },
-		};
-
-		/*
-		 * LIBOGC is bugged; the classic controller button state (besides btns) is extremely
-		 * unreliable, so we need to maintain some external state (mClassicButtonsLast) to
-		 * keep things from going haywire
-		 */
-
-		for (u32 i = 0; i < (sizeof(buttonMapping) / sizeof(buttonMapping[0])); i++) {
-			u32 classicBit = buttonMapping[i][0];
-			u32 wpadBit = buttonMapping[i][1];
-
-			if ((classic.btns & classicBit) != 0) {
-				if ((mClassicButtonsLast & classicBit) == 0) {
-					mWiiButtonsDown |= wpadBit;
-				}
-				else {
-					mWiiButtonsHeld |= wpadBit;
-				}
-			}
-			else if (((mClassicButtonsLast & classicBit) != 0) && ((classic.btns & classicBit) == 0)) {
-				mWiiButtonsUp |= wpadBit;
-			}
-		}
-
-		mClassicButtonsLast = classic.btns;
-	} break;
-
-	case EXP_NONE:
-	default:
-		break;
-	}
-
-	if ((mWiiButtonsDown & WPAD_BUTTON_HOME) != 0) {
+	if (mWiimoteInput->isHomeButtonPressed() || mClassicInput->isHomeButtonPressed())
 		return true;
-	}
-
+	
 	updateMoonChild();
 
 	// Main loop must be exited when shutdown or reset is due.
@@ -289,19 +156,9 @@ void CSystem::setupMoonChild(void) {
 }
 
 void CSystem::updateMoonChild(void) {
-	moonChildCalcGCAxis(mGCAxisX, PAD_BUTTON_LEFT, PAD_BUTTON_RIGHT, KEY_LEFT, KEY_RIGHT);
-	moonChildCalcGCAxis(mGCAxisY, PAD_BUTTON_DOWN, PAD_BUTTON_UP, KEY_DOWN, KEY_UP);
-
-	moonChildSubmitKey(PAD_BUTTON_DOWN, WPAD_BUTTON_LEFT, KEY_DOWN);
-	moonChildSubmitKey(PAD_BUTTON_UP, WPAD_BUTTON_RIGHT, KEY_UP);
-
-	moonChildSubmitKey(PAD_BUTTON_RIGHT, WPAD_BUTTON_DOWN, KEY_RIGHT);
-	moonChildSubmitKey(PAD_BUTTON_LEFT, WPAD_BUTTON_UP, KEY_LEFT);
-
-	moonChildSubmitKey(PAD_BUTTON_A, WPAD_BUTTON_2, KEY_SHOOT);
-	moonChildSubmitKey(PAD_BUTTON_B, WPAD_BUTTON_1, KEY_USE);
-
-	moonChildSubmitKey(PAD_BUTTON_START, WPAD_BUTTON_PLUS, KEY_QUIT);
+	mWiimoteInput->submit();
+	mGCInput->submit();
+	mClassicInput->submit();
 }
 
 /*
@@ -336,7 +193,12 @@ char *FullPath(char *filename) {
 	}
 
 	static char buffer[128];
-	snprintf(buffer, sizeof(buffer), "%sassets/moonchild/%s", launchPath, filename);
+	if (hasLaunchPath) {
+		snprintf(buffer, sizeof(buffer), "%sassets/moonchild/%s", launchPath, filename);
+	}
+	else {
+		snprintf(buffer, sizeof(buffer), "/moonchild_assets/moonchild/%s", filename);
+	}
 	return buffer;
 }
 
@@ -347,7 +209,12 @@ char *FullAudioPath(char *filename) {
 	}
 
 	static char buffer[128];
-	snprintf(buffer, sizeof(buffer), "%sassets/audio/%s", launchPath, filename);
+	if (hasLaunchPath) {
+		snprintf(buffer, sizeof(buffer), "%sassets/audio/%s", launchPath, filename);
+	}
+	else {
+		snprintf(buffer, sizeof(buffer), "/moonchild_assets/audio/%s", filename);
+	}
 	return buffer;
 }
 
@@ -357,7 +224,12 @@ char *FullMoviePath(char *filename) {
 	}
 
 	static char buffer[128];
-	snprintf(buffer, sizeof(buffer), "%sassets/movies/%s", launchPath, filename);
+	if (hasLaunchPath) {
+		snprintf(buffer, sizeof(buffer), "%sassets/movies/%s", launchPath, filename);
+	}
+	else {
+		snprintf(buffer, sizeof(buffer), "/moonchild_assets/movies/%s", filename);
+	}
 	return buffer;
 }
 
@@ -368,7 +240,7 @@ char *FullWritablePath(char *filename) {
 	}
 
 	static char buffer[128];
-	snprintf(buffer, sizeof(buffer), "%ssave/%s", launchPath, filename);
+	snprintf(buffer, sizeof(buffer), "/%s", filename);
 	return buffer;
 }
 

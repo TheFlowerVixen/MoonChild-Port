@@ -7,7 +7,7 @@
 	<short_description>It's Moon Child!</short_description>
 <long_description>You've got the power to be his friend... on the Wii!
 
-Hold the Wiimote sideways to play! (or use a GameCube controller)
+You can play with the Wiimote held sideways, a GameCube controller, or Classic controller!
 
 Controls (Wiimote):
 
@@ -16,12 +16,12 @@ D-Pad - Move
 1 - Use
 + - Exit Level
 
-Controls (GameCube):
+Controls (GameCube/Classic Controller):
 
 Left Stick/D-Pad - Move
 A - Jump/Shoot
 B - Use
-START - Exit Level
+START/+ - Exit Level
 
 Original repo: https://github.com/TheFlowerVixen/MoonChild-Port
 </long_description>

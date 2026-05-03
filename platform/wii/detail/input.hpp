@@ -8,66 +8,93 @@ class CInput {
 public:
     CInput(u32 padIndex) {
         mPadIndex = padIndex;
-    }
 
-    void calculate() {}
-    void submit() {}
+        mButtonsDown = 0;
+        mButtonsUp = 0;
+        mButtonsHeld = 0;
+    }
+    virtual ~CInput(void) {}
+
+    virtual void calculate() = 0;
+    virtual void submit() = 0;
+
+protected:
+    void submitKey(u32 button, u32 key);
+
 protected:
     u32 mPadIndex;
     u32 mButtonsDown;
 	u32 mButtonsUp;
 	u32 mButtonsHeld;
-
-    void submitKey(u32 button, u32 key);
 };
 
-class CInputAxis: CInput {
+class CInputAxis : public CInput {
 public:
-    using CInput::CInput;
+    CInputAxis(u32 padIndex) :
+        CInput(padIndex)
+    {
+        mAxisX = 0;
+        mAxisY = 0;
+        mAxisButton = 0;
+    }
+    virtual ~CInputAxis() {}
 
-    void calculate();
-    void submit();
+    virtual void calculate() = 0;
+    virtual void submit() = 0;
+
 protected:
-    using CInput::mPadIndex;
-    using CInput::mButtonsDown;
-    using CInput::mButtonsUp;
-    using CInput::mButtonsHeld;
+    void submitAxisKey(s8 axis, u32 negativeButton, u32 positiveButton, s32 negativeKey, s32 positiveKey);
+
+protected:
     s8 mAxisX;
     s8 mAxisY;
-    u32 mAxisFlags;
-
-    using CInput::submitKey;
-    void submitAxisKey(s8 axis, u32 negativeButton, u32 positiveButton, s32 negativeKey, s32 positiveKey);
+    u32 mAxisButton;
 };
 
-class CInputWiimote: CInput {
+class CInputWiimote : public CInput {
 public:
-    using CInput::CInput;
+    CInputWiimote(u32 padIndex) :
+        CInput(padIndex)
+    {}
+    virtual ~CInputWiimote() {}
 
-    void calculate();
-    void submit();
+    virtual void calculate();
+    virtual void submit();
 
-    bool isHomeButtonPressed() { return mButtonsDown & WPAD_BUTTON_HOME; }
+    bool isHomeButtonPressed() {
+        return (mButtonsDown & WPAD_BUTTON_HOME) != 0;
+    }
 };
 
-class CInputGC: CInputAxis {
+class CInputGC : public CInputAxis {
 public:
-    using CInputAxis::CInputAxis;
+    CInputGC(u32 padIndex) :
+        CInputAxis(padIndex)
+    {}
+    virtual ~CInputGC() {}
 
-    void calculate();
-    void submit();
+    virtual void calculate();
+    virtual void submit();
 };
 
-class CInputClassic: CInputAxis {
+class CInputClassic : public CInputAxis {
 public:
-    using CInputAxis::CInputAxis;
+    CInputClassic(u32 padIndex) :
+        CInputAxis(padIndex)
+    {
+        mButtonsLast = 0;
+    }
+    virtual ~CInputClassic() {}
 
-    void calculate();
-    void submit();
+    virtual void calculate();
+    virtual void submit();
 
-    bool isHomeButtonPressed() { return mButtonsDown & CLASSIC_CTRL_BUTTON_HOME; }
+    bool isHomeButtonPressed() {
+        return (mButtonsDown & CLASSIC_CTRL_BUTTON_HOME) != 0;
+    }
+
 private:
     u32 mButtonsLast;
 };
 
-#endif
+#endif // _WII_DETAIL_INPUT_HPP

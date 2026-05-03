@@ -131,8 +131,9 @@ bool CSystem::doCalc(void) {
 	mGCInput->calculate();
 	mClassicInput->calculate();
 
-	if (mWiimoteInput->isHomeButtonPressed() || mClassicInput->isHomeButtonPressed())
+	if (mWiimoteInput->isHomeButtonPressed() || mClassicInput->isHomeButtonPressed()) {
 		return true;
+	}
 	
 	updateMoonChild();
 

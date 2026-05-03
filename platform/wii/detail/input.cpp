@@ -1,4 +1,4 @@
-#include "input.hpp"
+#include "wii/detail/input.hpp"
 
 #include <gccore.h>
 #include <wiiuse/wpad.h>
@@ -23,23 +23,23 @@ void CInput::submitKey(u32 button, u32 key) {
 
 void CInputAxis::submitAxisKey(s8 axis, u32 negativeButton, u32 positiveButton, s32 negativeKey, s32 positiveKey) {
     if (axis <= -STICK_DEADZONE || axis >= STICK_DEADZONE) {
-        if (axis <= -STICK_DEADZONE && !(mAxisFlags & negativeButton)) {
+        if (axis <= -STICK_DEADZONE && (mAxisButton & negativeButton) == 0) {
             framework_EventHandle(FW_KEYDOWN, negativeKey);
-            mAxisFlags |= negativeButton;
+            mAxisButton |= negativeButton;
         }
-        if (axis >= STICK_DEADZONE && !(mAxisFlags & positiveButton)) {
+        if (axis >= STICK_DEADZONE && (mAxisButton & positiveButton) == 0) {
             framework_EventHandle(FW_KEYDOWN, positiveKey);
-            mAxisFlags |= positiveButton;
+            mAxisButton |= positiveButton;
         }
     }
     else {
-        if ((mAxisFlags & negativeButton) == negativeButton) {
+        if ((mAxisButton & negativeButton) == negativeButton) {
             framework_EventHandle(FW_KEYUP, negativeKey);
         }
-        else if ((mAxisFlags & positiveButton) == positiveButton) {
+        else if ((mAxisButton & positiveButton) == positiveButton) {
             framework_EventHandle(FW_KEYUP, positiveKey);
         }
-        mAxisFlags &= ~(negativeButton | positiveButton);
+        mAxisButton &= ~(negativeButton | positiveButton);
     }
 }
 
@@ -101,76 +101,53 @@ static f32 calcClassicStick(const joystick_t *joystick, bool axisY) {
 }
 
 void CInputClassic::calculate() {
-    mButtonsDown = 0;
-    mButtonsUp = 0;
-    mButtonsHeld = 0;
-    mAxisX = 0;
-    mAxisY = 0;
-
     expansion_t wpadExtension;
 	WPAD_Expansion(mPadIndex, &wpadExtension);
 
 	switch (wpadExtension.type) {
         case EXP_CLASSIC: {
-            classic_ctrl_t classic = wpadExtension.classic;
+            const classic_ctrl_t *classic = &wpadExtension.classic;
         
-            if (classic.ljs.mag != 0.0f) {
-                f32 axisX = calcClassicStick(&classic.ljs, false);
-                f32 axisY = calcClassicStick(&classic.ljs, true);
+            if (classic->ljs.mag != 0.0f) {
+                f32 axisX = calcClassicStick(&classic->ljs, false);
+                f32 axisY = calcClassicStick(&classic->ljs, true);
 
                 axisX *= 128.0f;
                 axisY *= 128.0f;
+                
+                axisX += 0.5f;
+                axisY += 0.5f;
 
-                if (axisX > 127.0f) {
-                    axisX = 127.0f;
-                }
-                if (axisY > 127.0f) {
-                    axisY = 127.0f;
-                }
+                if (axisX < -128.0f) axisX = -128.0f;
+                if (axisX >  127.0f) axisX =  127.0f;
 
-                mAxisX = (u8)axisX;
-                mAxisY = (u8)axisY;
+                if (axisY < -128.0f) axisY = -128.0f;
+                if (axisY >  127.0f) axisY =  127.0f;
+
+                mAxisX = static_cast<s8>(axisX);
+                mAxisY = static_cast<s8>(axisY);
+            }
+            else {
+                mAxisX = 0;
+                mAxisY = 0;
             }
 
-            static const u32 buttonMapping[] = {
-                CLASSIC_CTRL_BUTTON_A,
-                CLASSIC_CTRL_BUTTON_B,
-                CLASSIC_CTRL_BUTTON_DOWN,
-                CLASSIC_CTRL_BUTTON_UP,
-                CLASSIC_CTRL_BUTTON_RIGHT,
-                CLASSIC_CTRL_BUTTON_LEFT,
-                CLASSIC_CTRL_BUTTON_PLUS,
-                CLASSIC_CTRL_BUTTON_HOME
-            };
+            mButtonsHeld = classic->btns;
+            mButtonsDown = mButtonsHeld & ~mButtonsLast;
+            mButtonsUp = ~mButtonsHeld & mButtonsLast;
 
-            /*
-            * LIBOGC is bugged; the classic controller button state (besides btns) is extremely
-            * unreliable, so we need to maintain some external state (mButtonsLast) to
-            * keep things from going haywire
-            */
-
-            for (u32 i = 0; i < (sizeof(buttonMapping) / sizeof(buttonMapping[0])); i++) {
-                u32 button = buttonMapping[i];
-
-                if ((classic.btns & button) != 0) {
-                    if ((mButtonsLast & button) == 0) {
-                        mButtonsDown |= button;
-                    }
-                    else {
-                        mButtonsHeld |= button;
-                    }
-                }
-                else if (((mButtonsLast & button) != 0) && ((classic.btns & button) == 0)) {
-                    mButtonsUp |= button;
-                }
-            }
-
-            mButtonsLast = classic.btns;
+            mButtonsLast = mButtonsHeld;
         } break;
 
-        case EXP_NONE:
         default:
-            return;
+        case EXP_NONE: {
+            mAxisX = 0;
+            mAxisY = 0;
+            mButtonsDown = 0;
+            mButtonsUp = 0;
+            mButtonsHeld = 0;
+            mButtonsLast = 0;
+        } break;
 	}
 }
 

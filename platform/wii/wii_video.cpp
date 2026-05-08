@@ -66,7 +66,15 @@ void CVideo::doInit(void) {
     mScreenBlack = true;
 
     mVideoMode = new GXRModeObj;
-    *mVideoMode = *VIDEO_GetPreferredMode(NULL);
+    GXRModeObj *defaultMode = VIDEO_GetPreferredMode(NULL);
+
+    if ((defaultMode->viTVMode == VI_NTSC) || (CONF_GetEuRGB60() != 0) || (CONF_GetProgressiveScan() != 0)) {
+        u16 adjH = 0;
+        u16 adjV = static_cast<u16>(defaultMode->viWidth * 0.035);
+
+        printf("[CVideo::doInit] Overscan adj (%d, %d) ..\n", adjH, adjV);
+		GX_AdjustForOverscan(defaultMode, mVideoMode, adjH, adjV);
+    }
 
     mScreenW = static_cast<f32>(mVideoMode->fbWidth);
     mScreenH = static_cast<f32>(mVideoMode->efbHeight);

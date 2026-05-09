@@ -10,7 +10,7 @@
 #include "moonchild/globals.hpp"
 #include "moonchild/prefs.hpp"
 
-static constexpr s32 STICK_DEADZONE = 32;
+static constexpr s32 STICK_DEADZONE = 64;
 
 void CInput::submitKey(u32 button, u32 key) {
     if ((mButtonsDown & button) == button) {
